@@ -227,6 +227,7 @@ async function generateContent(prompt) {
   });
 }
 
+// // Function to generate content with specific output schema (like in the provided frontend code)
 // Function to generate structured JSON content
 async function generateStructuredContent(prompt) {
   return withRetry(async () => {
