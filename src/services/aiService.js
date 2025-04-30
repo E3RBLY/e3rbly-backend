@@ -36,45 +36,6 @@ async function generateContent(prompt) {
 }
 
 // // Function to generate content with specific output schema (like in the provided frontend code)
-// async function generateStructuredContent(prompt, outputSchema) {
-//     try {
-//         const model = getGenerativeModel();
-//         // Note: The Node.js SDK might not directly support Zod schemas like Genkit.
-//         // We'll need to adjust how we handle structured output.
-//         // For now, we'll generate text and expect it to be JSON, then parse.
-//         // A more robust solution might involve defining the schema in the prompt itself
-//         // or using function calling if the model supports it well for this structure.
-
-//         const generationConfig = {
-//             // Ensure JSON output if possible, though direct schema enforcement isn't standard here
-//             // responseMimeType: "application/json", // Use if available and needed
-//         };
-
-//         const result = await model.generateContent(prompt, generationConfig);
-//         const response = await result.response;
-//         const text = response.text();
-
-//         // Attempt to parse the text as JSON
-//         try {
-//             const parsedJson = JSON.parse(text);
-//             // TODO: Add validation against the expected outputSchema structure here if needed
-//             return parsedJson;
-//         } catch (parseError) {
-//             console.error("Failed to parse AI response as JSON:", parseError);
-//             console.error("Raw AI response text:", text);
-//             // Fallback or throw error depending on requirements
-//             // For now, returning the raw text might be useful for debugging
-//             // throw new Error("AI response was not valid JSON.");
-//             return { error: "AI response was not valid JSON", rawResponse: text };
-//         }
-
-//     } catch (error) {
-//         console.error("Error generating structured content with Google GenAI:", error);
-//         throw new Error("Failed to generate structured content using AI service.");
-//     }
-// }
-
-// services/aiService.js - Update generateStructuredContent
 
 async function generateStructuredContent(prompt) {
   try {
