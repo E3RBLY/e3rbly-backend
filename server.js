@@ -13,6 +13,7 @@ console.log("- GOOGLE_GENAI_API_KEY:", process.env.GOOGLE_GENAI_API_KEY ? "Set" 
 const arabicAnalysisRoutes = require("./src/routes/arabicAnalysisRoutes");
 const exercisesRoutes = require("./src/routes/exercisesRoutes");
 const quizRoutes = require("./src/routes/quizRoutes");
+const grammarConceptsRoutes = require("./src/routes/grammarConceptsRoutes");
 
 // Initialize Express app
 const app = express();
@@ -29,6 +30,7 @@ app.use("/api/analysis", arabicAnalysisRoutes);
 app.use("/api/exercises", exercisesRoutes);
 // All quiz routes will be prefixed with /api/quiz
 app.use("/api/quiz", quizRoutes);
+app.use("/api/grammar", grammarConceptsRoutes);
 
 // --- Basic Routes ---
 // Health check or root route
