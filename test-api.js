@@ -1,10 +1,12 @@
 
-
+///==========================================================================================================================================
 const http = require('http');
 
 // Configuration
 const API_BASE_URL = 'http://localhost:3001';
 const REQUEST_TIMEOUT = 60000; // 60 seconds timeout for AI-heavy requests
+
+// Main API endpoints
 const endpoints = [
   { 
     name: 'Health Check', 
@@ -96,6 +98,100 @@ const endpoints = [
   }
 ];
 
+// Grammar concepts endpoints
+const grammarConceptsEndpoints = [
+  {
+    name: 'Get Grammar Explanation - Noun',
+    path: '/api/grammar/explanation',
+    method: 'POST',
+    body: {
+      conceptType: 'part_of_speech',
+      conceptName: 'noun'
+    },
+    expectedStatus: 200,
+    timeout: REQUEST_TIMEOUT,
+    description: 'Gets explanation and examples for nouns in Arabic grammar',
+    validate: (data) => 
+      data.type === 'part_of_speech' &&
+      data.name === 'noun' &&
+      data.nameArabic &&
+      data.description &&
+      Array.isArray(data.examples) &&
+      data.examples.length >= 3 &&
+      Array.isArray(data.tips) &&
+      Array.isArray(data.relatedConcepts)
+  },
+  {
+    name: 'Get Grammar Explanation - Verb Tense',
+    path: '/api/grammar/explanation',
+    method: 'POST',
+    body: {
+      conceptType: 'tense',
+      conceptName: 'past'
+    },
+    expectedStatus: 200,
+    timeout: REQUEST_TIMEOUT,
+    description: 'Gets explanation and examples for past tense in Arabic grammar',
+    validate: (data) => 
+      data.type === 'tense' &&
+      data.name === 'past' &&
+      data.nameArabic &&
+      data.description &&
+      Array.isArray(data.examples) &&
+      Array.isArray(data.tips)
+  },
+  {
+    name: 'Get Related Concepts - Default Count',
+    path: '/api/grammar/related',
+    method: 'POST',
+    body: {
+      conceptType: 'case',
+      conceptName: 'nominative'
+    },
+    expectedStatus: 200,
+    timeout: REQUEST_TIMEOUT,
+    description: 'Gets related concepts for nominative case in Arabic grammar',
+    validate: (data) => 
+      data.relatedConcepts &&
+      Array.isArray(data.relatedConcepts) &&
+      data.relatedConcepts.length === 3 &&
+      data.relatedConcepts[0].type &&
+      data.relatedConcepts[0].name &&
+      data.relatedConcepts[0].nameArabic &&
+      data.relatedConcepts[0].briefDescription
+  },
+  {
+    name: 'Get Related Concepts - Custom Count',
+    path: '/api/grammar/related',
+    method: 'POST',
+    body: {
+      conceptType: 'gender',
+      conceptName: 'masculine',
+      count: 2
+    },
+    expectedStatus: 200,
+    timeout: REQUEST_TIMEOUT,
+    description: 'Gets 2 related concepts for masculine gender in Arabic grammar',
+    validate: (data) => 
+      data.relatedConcepts &&
+      Array.isArray(data.relatedConcepts) &&
+      data.relatedConcepts.length === 2
+  },
+  {
+    name: 'Error - Invalid Concept Type',
+    path: '/api/grammar/explanation',
+    method: 'POST',
+    body: {
+      conceptType: 'invalid_type',
+      conceptName: 'noun'
+    },
+    expectedStatus: 400,
+    timeout: 5000,
+    description: 'Tests error handling for invalid concept type',
+    validate: (data) => data.error && data.message
+  }
+];
+
 /**
  * Makes an HTTP request using native http module with timeout
  */
@@ -152,15 +248,15 @@ function formatDuration(ms) {
 }
 
 /**
- * Tests all API endpoints with validation and timing
+ * Tests API endpoints with validation and timing
  */
-async function testAllEndpoints() {
-  console.log('🔍 Starting API endpoint tests...\n');
+async function testEndpoints(endpointList, testGroupName) {
+  console.log(`🔍 Starting ${testGroupName} tests...\n`);
   const results = {
     success: 0,
     failure: 0,
     skipped: 0,
-    total: endpoints.length,
+    total: endpointList.length,
     details: []
   };
 
@@ -168,7 +264,7 @@ async function testAllEndpoints() {
   const testsToRun = process.argv.slice(2);
   const hasFilters = testsToRun.length > 0;
 
-  for (const endpoint of endpoints) {
+  for (const endpoint of endpointList) {
     // Skip test if filters are active and this test isn't in the list
     if (hasFilters && !testsToRun.some(filter => endpoint.name.toLowerCase().includes(filter.toLowerCase()))) {
       results.skipped++;
@@ -217,6 +313,11 @@ async function testAllEndpoints() {
           'Accept': 'application/json'
         }
       };
+
+      // Add auth token if needed for grammar endpoints
+      if (path.includes('/api/grammar/')) {
+        options.headers['Authorization'] = 'Bearer test-token';
+      }
 
       if (body) {
         console.log(`   📤 Request Body: 
@@ -302,7 +403,7 @@ ${JSON.stringify(response.data, null, 2)}`);
   }
 
   // Print summary
-  console.log('\n🏁 Testing Summary:');
+  console.log(`\n🏁 ${testGroupName} Summary:`);
   console.log(`   ✅ Successes: ${results.success}`);
   console.log(`   ❌ Failures: ${results.failure}`);
   if (results.skipped > 0) {
@@ -311,7 +412,7 @@ ${JSON.stringify(response.data, null, 2)}`);
   console.log(`   🔍 Total Tests: ${results.total}`);
   
   if (results.failure > 0) {
-    console.log('\n❌ Failed Tests:');
+    console.log(`\n❌ Failed ${testGroupName} Tests:`);
     results.details
       .filter(r => r.status === 'failure' || r.status === 'error')
       .forEach(result => {
@@ -319,13 +420,69 @@ ${JSON.stringify(response.data, null, 2)}`);
       });
   }
   
-  console.log('\n💡 Tips:');
-  console.log('   - Run specific tests by adding test names as arguments: node test-api.js "Grammar" "Quiz"');
-  console.log('   - AI endpoints may take longer or occasionally fail due to model overload');
-  console.log('   - Try reducing the count of questions/exercises if tests timeout');
-  
   return results;
 }
 
-// Run the tests
-testAllEndpoints();
+/**
+ * Tests all API endpoints (both main and grammar concepts)
+ */
+async function testAllEndpoints() {
+  console.log('🔍 Starting comprehensive API testing...\n');
+  
+  // Determine which test groups to run
+  const args = process.argv.slice(2);
+  const runMainTests = !args.includes('--grammar-only');
+  const runGrammarTests = !args.includes('--main-only');
+  
+  let mainResults = { success: 0, failure: 0, skipped: 0, total: 0 };
+  let grammarResults = { success: 0, failure: 0, skipped: 0, total: 0 };
+  
+  // Run main API tests
+  if (runMainTests) {
+    console.log('==== MAIN API ENDPOINTS ====');
+    mainResults = await testEndpoints(endpoints, 'API Endpoint');
+  }
+  
+  // Run grammar concepts tests
+  if (runGrammarTests) {
+    console.log('\n==== GRAMMAR CONCEPTS ENDPOINTS ====');
+    grammarResults = await testEndpoints(grammarConceptsEndpoints, 'Grammar Concepts');
+  }
+  
+  // Print overall summary
+  const totalResults = {
+    success: mainResults.success + grammarResults.success,
+    failure: mainResults.failure + grammarResults.failure,
+    skipped: mainResults.skipped + grammarResults.skipped,
+    total: mainResults.total + grammarResults.total
+  };
+  
+  console.log('\n📊 OVERALL TESTING SUMMARY:');
+  console.log(`   ✅ Total Successes: ${totalResults.success}`);
+  console.log(`   ❌ Total Failures: ${totalResults.failure}`);
+  if (totalResults.skipped > 0) {
+    console.log(`   ⏭️  Total Skipped: ${totalResults.skipped}`);
+  }
+  console.log(`   🔍 Total Tests: ${totalResults.total}`);
+  
+  console.log('\n💡 Tips:');
+  console.log('   - Run specific tests by adding test names as arguments: node test-api.js "Grammar" "Quiz"');
+  console.log('   - Run only main API tests: node test-api.js --main-only');
+  console.log('   - Run only grammar concept tests: node test-api.js --grammar-only');
+  console.log('   - AI endpoints may take longer or occasionally fail due to model overload');
+  console.log('   - Try reducing the count of questions/exercises if tests timeout');
+  
+  return totalResults;
+}
+
+// Run the tests if this script is executed directly
+if (require.main === module) {
+  testAllEndpoints();
+}
+
+module.exports = { 
+  testAllEndpoints,
+  testEndpoints,
+  makeRequest,
+  formatDuration
+};
