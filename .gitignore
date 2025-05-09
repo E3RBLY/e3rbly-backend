@@ -4,3 +4,5 @@
 # Ignore all .env files
 .env
 
+# Ignore coverage folder
+coverage/
