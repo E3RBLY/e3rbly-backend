@@ -18,6 +18,12 @@
 | 1 | ESLint/Prettier | ⏳ blocked: npm registry unreachable from Claude's workspace (Q8) | |
 | 1 | Crashlytics hook | ⏳ needs a device build to verify | |
 | 2 | **H2+H3** no raw error leaks, quiz fallback crash removed | ✅ PR #9 | 2026-09-29 |
-| 2 | **C3/H4** per-IP rate limits (API 60/min, AI 10/min), 16kb body cap, 1000-char text caps, Arabic-ratio validation | 🔄 PR open | 2026-09-29 |
+| 2 | **C3/H4** per-IP rate limits (API 60/min, AI 10/min), 16kb body cap, 1000-char text caps, Arabic-ratio validation | ✅ PR #11 | 2026-09-29 |
 | 2 | **C4/H5/M1/M2** removed unused `/auth/*` + JWT, `/test-route`, double auth middleware, startup noise; service account via `FIREBASE_SERVICE_ACCOUNT_JSON`; strict mode fails fast without credentials | ✅ PR #10 | 2026-09-29 |
 | 2 | **C2** Gemini: REST client, `GEMINI_MODEL` (default `gemini-3.6-flash`), per-call timeout, 1 retry, typed errors; SDK removed; Node pinned 22.x; `maxDuration` 60 | ✅ PR #8 | 2026-09-29 |
+| 2 | Mobile **H7** Arabic font actually bundled (+ manifest regression test) | ✅ mobile PR #14, CI green | 2026-09-29 |
+| 2 | Mobile **M4/M6** build-time `API_BASE_URL`, friendly 429/413/5xx, debug-only logging | ✅ mobile PR #15, CI green | 2026-09-29 |
+| 1b | `scripts/smoke-live.js` (AI-call cap, latency p50/max, exit code) + `docs/TEST_REPORT.md` | ✅ this PR | 2026-09-29 |
+| 1c | Zero-config Vercel (`vercel.json` = region only), `docs/DEPLOY.md` | ✅ this PR; **owner: create project + env vars** | 2026-09-29 |
+| 1c | Preview deploy → live smoke → production | ⏳ owner (new account + new Gemini key) | |
+
