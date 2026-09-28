@@ -18,5 +18,6 @@
 | 1 | ESLint/Prettier | ⏳ blocked: npm registry unreachable from Claude's workspace (Q8) | |
 | 1 | Crashlytics hook | ⏳ needs a device build to verify | |
 | 2 | **H2+H3** no raw error leaks, quiz fallback crash removed | ✅ PR #9 | 2026-09-29 |
-| 2 | **C4/H5/M1/M2** removed unused `/auth/*` + JWT, `/test-route`, double auth middleware, startup noise; service account via `FIREBASE_SERVICE_ACCOUNT_JSON`; strict mode fails fast without credentials | 🔄 PR open | 2026-09-29 |
+| 2 | **C3/H4** per-IP rate limits (API 60/min, AI 10/min), 16kb body cap, 1000-char text caps, Arabic-ratio validation | 🔄 PR open | 2026-09-29 |
+| 2 | **C4/H5/M1/M2** removed unused `/auth/*` + JWT, `/test-route`, double auth middleware, startup noise; service account via `FIREBASE_SERVICE_ACCOUNT_JSON`; strict mode fails fast without credentials | ✅ PR #10 | 2026-09-29 |
 | 2 | **C2** Gemini: REST client, `GEMINI_MODEL` (default `gemini-3.6-flash`), per-call timeout, 1 retry, typed errors; SDK removed; Node pinned 22.x; `maxDuration` 60 | ✅ PR #8 | 2026-09-29 |

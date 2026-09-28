@@ -3,6 +3,8 @@ const express = require("express");
 const cors = require("cors");
 
 const authenticateToken = require("./src/middleware/authMiddleware");
+const { createRateLimiter } = require("./src/middleware/rateLimit");
+const { inputLimits } = require("./src/middleware/inputLimits");
 const arabicAnalysisRoutes = require("./src/routes/arabicAnalysisRoutes");
 const exercisesRoutes = require("./src/routes/exercisesRoutes");
 const quizRoutes = require("./src/routes/quizRoutes");
@@ -11,7 +13,7 @@ const grammarConceptsRoutes = require("./src/routes/grammarConceptsRoutes");
 const app = express();
 
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: process.env.MAX_BODY_SIZE || "16kb" }));
 app.use(express.urlencoded({ extended: true }));
 
 // --- Public ---
@@ -36,7 +38,19 @@ app.get("/", (req, res) => {
   });
 });
 
-// --- API (auth enforced by AUTH_MODE, applied once here) ---
+// --- API: rate limits -> input caps -> auth (AUTH_MODE), applied once for all of /api ---
+const perMinute = (name, fallback) => {
+  const n = Number.parseInt(process.env[name], 10);
+  return Number.isFinite(n) && n >= 0 ? n : fallback;
+};
+const apiLimiter = createRateLimiter({ name: "api", windowMs: 60_000, max: perMinute("RATE_LIMIT_API_PER_MIN", 60) });
+const aiLimiter = createRateLimiter({ name: "ai", windowMs: 60_000, max: perMinute("RATE_LIMIT_AI_PER_MIN", 10) });
+// Every POST under /api calls the AI provider except quiz evaluation.
+const isAiRoute = (req) => req.method === "POST" && req.path !== "/quiz/evaluate";
+
+app.use("/api", apiLimiter);
+app.use("/api", (req, res, next) => (isAiRoute(req) ? aiLimiter(req, res, next) : next()));
+app.use("/api", inputLimits);
 app.use("/api", authenticateToken);
 
 app.get("/api/config", (req, res) => {

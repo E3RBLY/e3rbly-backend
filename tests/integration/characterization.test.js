@@ -124,10 +124,10 @@ describe('POST /api/analysis/analyze', () => {
     expect(res.status).toBe(400);
   });
 
-  test('BUG (H4): one Arabic letter among Latin text passes validation', async () => {
-    aiService.generateStructuredContent.mockResolvedValue(validAnalysis);
+  test('FIXED (H4): one Arabic letter among Latin text is rejected -> 400', async () => {
     const res = await request(app).post('/api/analysis/analyze').send({ arabicText: 'aaaaaaaaaaب' });
-    expect(res.status).toBe(200);
+    expect(res.status).toBe(400);
+    expect(aiService.generateStructuredContent).not.toHaveBeenCalled();
   });
 
   test('valid AI output -> 200 with validated body', async () => {
