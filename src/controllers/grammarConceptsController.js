@@ -1,3 +1,4 @@
+const { errorCode } = require("../utils/errors");
 
 const aiService = require("../services/aiService");
 const { 
@@ -127,8 +128,7 @@ ${GrammarConceptTypeEnum.options.join('\n- ')}
       console.error("Raw AI Response:", grammarConceptJson);
       return res.status(500).json({
         error: "هناك مشكلة في تنسيق الاستجابة",
-        message: "AI service returned data in an unexpected format.",
-        details: validationResult.error.errors,
+        message: "AI service returned data in an unexpected format.", code: "AI_BAD_RESPONSE"
       });
     }
 
@@ -141,9 +141,7 @@ ${GrammarConceptTypeEnum.options.join('\n- ')}
       .status(500)
       .json({ 
         error: "فشل في الحصول على شرح المفهوم النحوي", 
-        message: "Failed to get grammar concept explanation.",
-        details: error.message 
-      });
+        message: "Failed to get grammar concept explanation.", code: errorCode(error) });
   }
 };
 
@@ -256,8 +254,7 @@ ${GrammarConceptTypeEnum.options.join('\n- ')}
       console.error("Raw AI Response:", relatedConceptsJson);
       return res.status(500).json({
         error: "هناك مشكلة في تنسيق الاستجابة",
-        message: "AI service returned data in an unexpected format.",
-        details: validationResult.error.errors,
+        message: "AI service returned data in an unexpected format.", code: "AI_BAD_RESPONSE"
       });
     }
 
@@ -270,9 +267,7 @@ ${GrammarConceptTypeEnum.options.join('\n- ')}
       .status(500)
       .json({ 
         error: "فشل في الحصول على المفاهيم النحوية ذات الصلة", 
-        message: "Failed to get related grammar concepts.",
-        details: error.message 
-      });
+        message: "Failed to get related grammar concepts.", code: errorCode(error) });
   }
 };
 
@@ -293,9 +288,7 @@ const getConceptTypes = async (req, res) => {
       .status(500)
       .json({ 
         error: "فشل في الحصول على أنواع المفاهيم النحوية", 
-        message: "Failed to get grammar concept types.",
-        details: error.message 
-      });
+        message: "Failed to get grammar concept types.", code: errorCode(error) });
   }
 };
 
@@ -336,9 +329,7 @@ const getConceptValues = async (req, res) => {
       .status(500)
       .json({ 
         error: "فشل في الحصول على قيم المفهوم النحوي", 
-        message: "Failed to get grammar concept values.",
-        details: error.message 
-      });
+        message: "Failed to get grammar concept values.", code: errorCode(error) });
   }
 };
 

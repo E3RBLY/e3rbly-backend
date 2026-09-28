@@ -156,13 +156,18 @@ app.use((req, res, next) => {
   res.status(404).json({ error: "Not Found", message: `Route ${req.method} ${req.path} not found` });
 });
 
+// eslint-disable-next-line no-unused-vars
 app.use((err, req, res, next) => {
-  console.error("Unhandled error:", err.stack);
-  res.status(500).json({ 
-    error: "Something went wrong!", 
-    message: err.message,
-    stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
-  });
+  // Body-parser errors are client errors, not server crashes.
+  if (err && err.type === "entity.parse.failed") {
+    return res.status(400).json({ error: "طلب غير صالح: صيغة JSON غير صحيحة.", code: "INVALID_JSON" });
+  }
+  if (err && err.type === "entity.too.large") {
+    return res.status(413).json({ error: "النص طويل جدًا.", code: "PAYLOAD_TOO_LARGE" });
+  }
+  console.error("Unhandled error:", err && err.stack);
+  // Never send exception messages or stacks to clients (audit H3).
+  res.status(500).json({ error: "حدث خطأ غير متوقع. يرجى المحاولة لاحقًا.", code: "INTERNAL_ERROR" });
 });
 
 // --- Start Server ---

@@ -54,6 +54,16 @@ describe('meta routes', () => {
     expect(res.body).toEqual({ authMode: 'optional', apiAvailable: false, firebaseConfigured: true });
   });
 
+  test('malformed JSON body -> 400 INVALID_JSON (was 500 with parser message)', async () => {
+    const res = await request(app)
+      .post('/api/quiz/evaluate')
+      .set('Content-Type', 'application/json')
+      .send('{"broken":');
+    expect(res.status).toBe(400);
+    expect(res.body.code).toBe('INVALID_JSON');
+    expect(res.body.stack).toBeUndefined();
+  });
+
   test('unknown route -> 404 JSON', async () => {
     const res = await request(app).get('/nope');
     expect(res.status).toBe(404);
@@ -140,19 +150,31 @@ describe('POST /api/analysis/analyze', () => {
     expect(res.body.tokens[0].diacritized).toBe('ذَهَبَ');
   });
 
-  test('AI output with wrong shape -> 500 with zod details', async () => {
+  test('AI output with wrong shape -> 500, code AI_BAD_RESPONSE, no validation internals', async () => {
     aiService.generateStructuredContent.mockResolvedValue({ nope: true });
     const res = await request(app).post('/api/analysis/analyze').send({ arabicText: 'ذهب الولد' });
     expect(res.status).toBe(500);
     expect(res.body.error).toBe('AI service returned data in an unexpected format.');
-    expect(res.body.details).toBeDefined();
+    expect(res.body.code).toBe('AI_BAD_RESPONSE');
+    expect(res.body.details).toBeUndefined();
   });
 
-  test('BUG (H3): provider error message leaks to client', async () => {
+  test('FIXED (H3): provider error message is not sent to the client', async () => {
     aiService.generateStructuredContent.mockRejectedValue(new Error('upstream secret detail'));
     const res = await request(app).post('/api/analysis/analyze').send({ arabicText: 'ذهب الولد' });
     expect(res.status).toBe(500);
-    expect(res.body.details).toBe('upstream secret detail');
+    expect(res.body.code).toBe('INTERNAL_ERROR');
+    expect(JSON.stringify(res.body)).not.toContain('upstream secret detail');
+  });
+
+  test('AiServiceError code is passed through (e.g. AI_TIMEOUT)', async () => {
+    aiService.generateStructuredContent.mockRejectedValue(
+      Object.assign(new Error('AI provider did not respond within 20000ms'), { code: 'AI_TIMEOUT' }),
+    );
+    const res = await request(app).post('/api/analysis/analyze').send({ arabicText: 'ذهب الولد' });
+    expect(res.status).toBe(500);
+    expect(res.body.code).toBe('AI_TIMEOUT');
+    expect(res.body.details).toBeUndefined();
   });
 });
 
@@ -306,13 +328,15 @@ describe('POST /api/quiz/generate', () => {
     expect(res.body.metadata).toMatchObject({ requestedCount: 1, actualCount: 1 });
   });
 
-  test('BUG (H2): AI failure hits a missing fallback -> 500 TypeError', async () => {
-    aiService.generateStructuredContent.mockRejectedValue(new Error('model down'));
+  test('FIXED (H2): AI failure returns a clean 500, no missing-fallback TypeError', async () => {
+    aiService.generateStructuredContent.mockRejectedValue(
+      Object.assign(new Error('model down'), { code: 'AI_UNAVAILABLE' }),
+    );
     const res = await request(app)
       .post('/api/quiz/generate')
       .send({ topic: 'الفاعل', difficulty: 'beginner', questionCount: 1 });
     expect(res.status).toBe(500);
-    expect(res.body.details).toMatch(/generateFallbackContent is not a function/);
+    expect(res.body).toEqual({ error: 'Failed to generate quiz.', code: 'AI_UNAVAILABLE' });
   });
 });
 
