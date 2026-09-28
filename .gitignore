@@ -1,5 +1,5 @@
 # Dependencies
-node_modules/
+node_modules
 
 # Secrets and local env (never commit real values; see .env.example)
 .env
