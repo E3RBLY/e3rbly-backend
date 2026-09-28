@@ -13,4 +13,8 @@
 | 0.5 | Owner: set default branch → `main`, make backend private, delete stale branches (proxy blocks settings/branch deletion for Claude) | ⏳ owner | |
 | 0.5 | Owner: GitHub Support request to purge cached PR refs #1–#5 (still contain old secrets) | ⏳ owner | |
 | 0.5 | `chore/repo-hygiene` (.gitignore, .gitattributes, .env.example, docs) | 🔄 PR open | 2026-09-29 |
-| 1 | Safety net (lint, mocked tests, CI) | next | |
+| 1 | Backend characterization tests (86, all 19 routes, mocked AI) + CI | ✅ PR #7, CI green | 2026-09-29 |
+| 1 | Mobile unit tests + Flutter CI (analyze report-only, 0 errors) | ✅ mobile PR #13, CI green | 2026-09-29 |
+| 1 | ESLint/Prettier | ⏳ blocked: npm registry unreachable from Claude's workspace (Q8) | |
+| 1 | Crashlytics hook | ⏳ needs a device build to verify | |
+| 2 | **C2** Gemini: REST client, `GEMINI_MODEL` (default `gemini-3.6-flash`), per-call timeout, 1 retry, typed errors; SDK removed; Node pinned 22.x; `maxDuration` 60 | 🔄 PR open | 2026-09-29 |
