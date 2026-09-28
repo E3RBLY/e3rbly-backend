@@ -3,10 +3,11 @@ module.exports = {
   testMatch: ['**/tests/**/*.test.js'],
   setupFiles: ['<rootDir>/tests/setup.js'],
   verbose: true,
-  collectCoverage: true,
+  // Coverage on demand: `npm test -- --coverage`
+  collectCoverage: false,
   coverageDirectory: 'coverage',
   coveragePathIgnorePatterns: ['/node_modules/'],
-  testTimeout: 30000,
+  testTimeout: 10000,
+  // server.js calls app.listen() on import; this closes that handle after the run.
   forceExit: true,
-  detectOpenHandles: true
 };

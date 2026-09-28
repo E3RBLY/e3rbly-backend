@@ -1,296 +1,170 @@
-
-
-// const { GoogleGenerativeAI } = require("@google/generative-ai");
-// require('dotenv').config();
-
-// // Access your API key as an environment variable
-// const genAI = new GoogleGenerativeAI(process.env.GOOGLE_GENAI_API_KEY);
-
-// // Retry configuration
-// const DEFAULT_RETRY_CONFIG = {
-//   maxRetries: 3,             // Maximum number of retry attempts
-//   initialDelayMs: 1000,      // Start with a 1 second delay
-//   maxDelayMs: 10000,         // Maximum delay between retries (10 seconds)
-//   backoffFactor: 2,          // Exponential backoff factor
-//   retryableStatusCodes: [429, 500, 502, 503, 504] // Status codes that trigger retry
-// };
-
-// // Function to get the generative model
-// function getGenerativeModel(modelName = "gemini-2.0-flash") { // Using flash as a default, adjust if needed
-//   return genAI.getGenerativeModel({ model: modelName });
-// }
-
-// /**
-//  * Sleep function for the delay between retries
-//  * @param {number} ms - Milliseconds to sleep
-//  */
-// function sleep(ms) {
-//   return new Promise(resolve => setTimeout(resolve, ms));
-// }
-
-// /**
-//  * Calculate exponential backoff delay
-//  * @param {number} retryAttempt - Current retry attempt number (0-based)
-//  * @param {Object} config - Retry configuration
-//  * @returns {number} - Delay in milliseconds
-//  */
-// function calculateBackoffDelay(retryAttempt, config) {
-//   const delay = Math.min(
-//     config.maxDelayMs,
-//     config.initialDelayMs * Math.pow(config.backoffFactor, retryAttempt)
-//   );
-//   // Add some randomness to prevent multiple requests retrying simultaneously
-//   return delay * (0.8 + Math.random() * 0.4);
-// }
-
-// /**
-//  * Should retry based on error
-//  * @param {Error} error - The error from the API call
-//  * @param {Object} config - Retry configuration
-//  * @returns {boolean} - Whether to retry
-//  */
-// function shouldRetry(error, config) {
-//   // Check if it's a status code error we should retry
-//   if (error.status && config.retryableStatusCodes.includes(error.status)) {
-//     return true;
-//   }
-  
-//   // Check error message for service overload indicators
-//   const errorMessage = error.message?.toLowerCase() || '';
-//   return errorMessage.includes('overloaded') || 
-//          errorMessage.includes('rate limit') || 
-//          errorMessage.includes('try again later') ||
-//          errorMessage.includes('timeout');
-// }
-
-// /**
-//  * Execute a function with retry logic
-//  * @param {Function} fn - Async function to execute
-//  * @param {Object} config - Retry configuration
-//  * @returns {Promise} - Promise resolving to the function result
-//  */
-// async function withRetry(fn, config = DEFAULT_RETRY_CONFIG) {
-//   let lastError;
-  
-//   for (let attempt = 0; attempt <= config.maxRetries; attempt++) {
-//     try {
-//       // First attempt or retry
-//       return await fn();
-//     } catch (error) {
-//       lastError = error;
-      
-//       // Log the error
-//       console.warn(`AI request failed (attempt ${attempt + 1}/${config.maxRetries + 1}): ${error.message}`);
-      
-//       // Check if we should retry
-//       if (attempt >= config.maxRetries || !shouldRetry(error, config)) {
-//         break;
-//       }
-      
-//       // Calculate delay and wait before retrying
-//       const delayMs = calculateBackoffDelay(attempt, config);
-//       console.log(`Retrying after ${Math.round(delayMs / 1000)} seconds...`);
-//       await sleep(delayMs);
-//     }
-//   }
-  
-//   // If we get here, all retries failed
-//   throw lastError;
-// }
-
-// // Function to generate Arabic grammar explanations
-// async function generateArabicExplanation(prompt) {
-//   return withRetry(async () => {
-//     const model = getGenerativeModel("gemini-2.0-flash");
-//     const result = await model.generateContent(prompt);
-//     return result.response.text();
-//   });
-// }
-
-// // Function to generate general content
-// async function generateContent(prompt) {
-//   return withRetry(async () => {
-//     const model = getGenerativeModel();
-//     const result = await model.generateContent(prompt);
-//     const response = await result.response;
-//     return response.text();
-//   });
-// }
-
-// // // Function to generate content with specific output schema (like in the provided frontend code)
-// // Function to generate structured JSON content
-// async function generateStructuredContent(prompt) {
-//   return withRetry(async () => {
-//     const model = getGenerativeModel();
-//     const result = await model.generateContent(prompt);
-//     const response = await result.response;
-//     const text = response.text();
-
-//     // Handle JSON wrapped in code blocks
-//     const sanitizedText = text
-//       .replace(/```json/g, '')
-//       .replace(/```/g, '')
-//       .trim();
-      
-//     try {
-//       return JSON.parse(sanitizedText);
-//     } catch (parseError) {
-//       console.error("Failed to parse AI response:", parseError);
-//       console.error("Sanitized response text:", sanitizedText);
-//       throw new Error("AI response format invalid");
-//     }
-//   });
-// }
-
-// module.exports = {
-//   getGenerativeModel,
-//   generateContent,
-//   generateStructuredContent,
-//   generateArabicExplanation,
-//   // Expose retry utility for other potential uses
-//   withRetry
-// };
-// googleGenAI.js
-const { GoogleGenerativeAI } = require("@google/generative-ai");
-require('dotenv').config();
-
-// Access your API key as an environment variable
-const genAI = new GoogleGenerativeAI(process.env.GOOGLE_GENAI_API_KEY);
-
-// Retry configuration
-const DEFAULT_RETRY_CONFIG = {
-  maxRetries: 3,             // Maximum number of retry attempts
-  initialDelayMs: 1000,      // Start with a 1 second delay
-  maxDelayMs: 10000,         // Maximum delay between retries (10 seconds)
-  backoffFactor: 2,          // Exponential backoff factor
-  retryableStatusCodes: [429, 500, 502, 503, 504] // Status codes that trigger retry
-};
-
-// Function to get the generative model
-function getGenerativeModel(modelName = "gemini-2.0-flash") {
-  return genAI.getGenerativeModel({ model: modelName });
-}
-
 /**
- * Sleep function for the delay between retries
+ * Gemini client over the REST API (Node's built-in fetch, no SDK).
+ *
+ * Why no SDK: @google/generative-ai reached end of support on 2025-11-30,
+ * and the model it was pinned to (gemini-2.0-flash) was shut down on 2026-06-01.
+ * The REST call is small, stable and has no dependency to go stale.
+ *
+ * Public interface is unchanged for controllers:
+ *   generateContent(prompt) -> string
+ *   generateStructuredContent(prompt) -> parsed JSON
+ *   generateArabicExplanation(prompt) -> string
+ *
+ * Config (env):
+ *   GOOGLE_GENAI_API_KEY  required for any AI call
+ *   GEMINI_MODEL          default "gemini-3.6-flash" (Google's listed replacement for 2.0 Flash)
+ *   AI_TIMEOUT_MS         per-attempt timeout, default 20000
+ *   AI_MAX_RETRIES        retries on retryable errors, default 1
+ *   AI_MAX_OUTPUT_TOKENS  default 4096
  */
-function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
 
-/**
- * Calculate exponential backoff delay
- */
-function calculateBackoffDelay(retryAttempt, config) {
-  const delay = Math.min(
-    config.maxDelayMs,
-    config.initialDelayMs * Math.pow(config.backoffFactor, retryAttempt)
-  );
-  return delay * (0.8 + Math.random() * 0.4); // jitter
-}
+const API_BASE = 'https://generativelanguage.googleapis.com/v1beta';
+const DEFAULT_MODEL = 'gemini-3.6-flash';
+const RETRYABLE_STATUS = new Set([429, 500, 502, 503, 504]);
 
-/**
- * Detect if it's a quota-related error
- */
-function isQuotaError(error) {
-  const msg = error.message?.toLowerCase() || '';
-  return msg.includes("quota") || msg.includes("rate limit") || error.status === 429;
-}
-
-/**
- * Should retry based on error
- */
-function shouldRetry(error, config) {
-  if (error.status && config.retryableStatusCodes.includes(error.status)) {
-    return true;
+class AiServiceError extends Error {
+  /**
+   * @param {string} code  stable machine code (AI_TIMEOUT, AI_RATE_LIMITED, ...)
+   * @param {string} message  safe for logs; never contains the API key or user text
+   * @param {{status?: number, retryable?: boolean}} [meta]
+   */
+  constructor(code, message, meta = {}) {
+    super(message);
+    this.name = 'AiServiceError';
+    this.code = code;
+    this.status = meta.status;
+    this.retryable = Boolean(meta.retryable);
   }
-  const errorMessage = error.message?.toLowerCase() || '';
-  return errorMessage.includes('overloaded') || 
-         errorMessage.includes('rate limit') || 
-         errorMessage.includes('try again later') ||
-         errorMessage.includes('timeout');
 }
 
-/**
- * Execute a function with retry logic
- */
-async function withRetry(fn, config = DEFAULT_RETRY_CONFIG) {
-  let lastError;
-  for (let attempt = 0; attempt <= config.maxRetries; attempt++) {
+function intFromEnv(name, fallback) {
+  const n = Number.parseInt(process.env[name], 10);
+  return Number.isFinite(n) && n >= 0 ? n : fallback;
+}
+
+function getConfig() {
+  return {
+    apiKey: process.env.GOOGLE_GENAI_API_KEY,
+    model: process.env.GEMINI_MODEL || DEFAULT_MODEL,
+    timeoutMs: intFromEnv('AI_TIMEOUT_MS', 20000),
+    maxRetries: intFromEnv('AI_MAX_RETRIES', 1),
+    maxOutputTokens: intFromEnv('AI_MAX_OUTPUT_TOKENS', 4096),
+  };
+}
+
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+function backoffMs(attempt) {
+  const base = Math.min(4000, 1000 * 2 ** attempt);
+  return Math.round(base * (0.8 + Math.random() * 0.4)); // jitter
+}
+
+function errorFromStatus(status) {
+  if (status === 429) return new AiServiceError('AI_RATE_LIMITED', 'AI provider rate limit or quota exceeded', { status, retryable: true });
+  if (status === 400) return new AiServiceError('AI_BAD_REQUEST', 'AI provider rejected the request', { status });
+  if (status === 401 || status === 403) return new AiServiceError('AI_AUTH', 'AI provider rejected the API key', { status });
+  if (status === 404) return new AiServiceError('AI_MODEL_NOT_FOUND', 'Configured AI model was not found', { status });
+  return new AiServiceError('AI_UNAVAILABLE', `AI provider error (HTTP ${status})`, {
+    status,
+    retryable: RETRYABLE_STATUS.has(status),
+  });
+}
+
+/** One HTTP call to generateContent. Returns the concatenated text of the first candidate. */
+async function callGemini(prompt, { json = false } = {}) {
+  const cfg = getConfig();
+  if (!cfg.apiKey) {
+    throw new AiServiceError('AI_NOT_CONFIGURED', 'GOOGLE_GENAI_API_KEY is not set');
+  }
+
+  const body = {
+    contents: [{ role: 'user', parts: [{ text: prompt }] }],
+    generationConfig: {
+      maxOutputTokens: cfg.maxOutputTokens,
+      ...(json ? { responseMimeType: 'application/json' } : {}),
+    },
+  };
+
+  let res;
+  try {
+    res = await fetch(`${API_BASE}/models/${encodeURIComponent(cfg.model)}:generateContent`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-goog-api-key': cfg.apiKey },
+      body: JSON.stringify(body),
+      signal: AbortSignal.timeout(cfg.timeoutMs),
+    });
+  } catch (err) {
+    if (err && (err.name === 'TimeoutError' || err.name === 'AbortError')) {
+      throw new AiServiceError('AI_TIMEOUT', `AI provider did not respond within ${cfg.timeoutMs}ms`, { retryable: true });
+    }
+    throw new AiServiceError('AI_UNAVAILABLE', 'Could not reach AI provider', { retryable: true });
+  }
+
+  if (!res.ok) throw errorFromStatus(res.status);
+
+  let data;
+  try {
+    data = await res.json();
+  } catch {
+    throw new AiServiceError('AI_BAD_RESPONSE', 'AI provider returned invalid JSON', { retryable: true });
+  }
+
+  if (data?.promptFeedback?.blockReason) {
+    throw new AiServiceError('AI_BLOCKED', `AI provider blocked the prompt (${data.promptFeedback.blockReason})`);
+  }
+  const candidate = data?.candidates?.[0];
+  const text = (candidate?.content?.parts || [])
+    .map((p) => (typeof p.text === 'string' ? p.text : ''))
+    .join('');
+  if (!text) {
+    const reason = candidate?.finishReason || 'NO_CANDIDATE';
+    throw new AiServiceError('AI_EMPTY', `AI provider returned no text (${reason})`, { retryable: reason === 'NO_CANDIDATE' });
+  }
+  return text;
+}
+
+/** Run fn, retrying only retryable AiServiceErrors, at most AI_MAX_RETRIES times. */
+async function withRetry(fn, maxRetries = getConfig().maxRetries) {
+  for (let attempt = 0; ; attempt++) {
     try {
       return await fn();
-    } catch (error) {
-      lastError = error;
-
-      // 👇 Stop immediately if quota = 0
-      if (isQuotaError(error) && error.message.includes('"quota_limit_value":"0"')) {
-        throw new Error("❌ API quota = 0. Please enable billing or request quota increase in Google Cloud Console.");
-      }
-
-      console.warn(`AI request failed (attempt ${attempt + 1}/${config.maxRetries + 1}): ${error.message}`);
-      if (attempt >= config.maxRetries || !shouldRetry(error, config)) break;
-
-      const delayMs = calculateBackoffDelay(attempt, config);
-      console.log(`Retrying after ${Math.round(delayMs / 1000)} seconds...`);
-      await sleep(delayMs);
+    } catch (err) {
+      const retryable = err instanceof AiServiceError && err.retryable;
+      if (!retryable || attempt >= maxRetries) throw err;
+      console.warn(`AI call failed (${err.code}); retry ${attempt + 1}/${maxRetries}`);
+      await sleep(backoffMs(attempt));
     }
   }
-  throw lastError;
 }
 
-/**
- * Generate Arabic grammar explanations
- */
-async function generateArabicExplanation(prompt) {
-  return withRetry(async () => {
-    const model = getGenerativeModel("gemini-2.0-flash");
-    const result = await model.generateContent(prompt);
-    return result.response.text();
-  });
+function parseJson(text) {
+  const cleaned = text.replace(/```json/gi, '').replace(/```/g, '').trim();
+  try {
+    return JSON.parse(cleaned);
+  } catch {
+    // Log size only: model output can echo user text (privacy).
+    console.error(`AI JSON parse failed (length ${cleaned.length})`);
+    throw new AiServiceError('AI_BAD_RESPONSE', 'AI response format invalid');
+  }
 }
 
-/**
- * Generate general content
- */
 async function generateContent(prompt) {
-  return withRetry(async () => {
-    const model = getGenerativeModel();
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    return response.text();
-  });
+  return withRetry(() => callGemini(prompt));
 }
 
-/**
- * Generate structured JSON content
- */
+async function generateArabicExplanation(prompt) {
+  return generateContent(prompt);
+}
+
 async function generateStructuredContent(prompt) {
-  return withRetry(async () => {
-    const model = getGenerativeModel();
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const text = response.text();
-
-    const sanitizedText = text
-      .replace(/```json/g, '')
-      .replace(/```/g, '')
-      .trim();
-
-    try {
-      return JSON.parse(sanitizedText);
-    } catch (parseError) {
-      console.error("Failed to parse AI response:", parseError);
-      console.error("Sanitized response text:", sanitizedText);
-      throw new Error("AI response format invalid");
-    }
-  });
+  return withRetry(async () => parseJson(await callGemini(prompt, { json: true })));
 }
 
-// Export all helpers
 module.exports = {
-  getGenerativeModel,
   generateContent,
   generateStructuredContent,
   generateArabicExplanation,
-  withRetry
+  withRetry,
+  AiServiceError,
+  DEFAULT_MODEL,
 };

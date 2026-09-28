@@ -1,3 +1,4 @@
+const { errorCode } = require("../utils/errors");
 
 const aiService = require("../services/aiService");
 const { v4: uuidv4 } = require("uuid");
@@ -45,21 +46,11 @@ Return the result as a JSON object with a single key "quiz" which is an array of
     const startTime = Date.now();
     console.log(`[${new Date().toISOString()}] Starting quiz generation: ${topic}, ${difficulty}, count=${questionCount}`);
     
-    // Try to generate content with retries (handled in the aiService)
-    let resultJson;
-    try {
-      resultJson = await aiService.generateStructuredContent(prompt);
-      console.log(`[${new Date().toISOString()}] Generated quiz content in ${Date.now() - startTime}ms`);
-    } catch (aiError) {
-      console.error(`[${new Date().toISOString()}] AI service error:`, aiError.message);
-      
-      // All retries failed - use fallback content
-      console.log(`[${new Date().toISOString()}] Using fallback content for quiz`);
-      resultJson = await aiService.generateFallbackContent('quiz');
-      
-      // Add a header to indicate fallback content was used
-      res.setHeader('X-Content-Source', 'fallback');
-    }
+    // Retries are handled in aiService. There is no fallback quiz content: the old code
+    // called a non-existent generateFallbackContent() and crashed (audit H2). Errors fall
+    // through to the catch below and return a friendly 500.
+    const resultJson = await aiService.generateStructuredContent(prompt);
+    console.log(`[${new Date().toISOString()}] Generated quiz content in ${Date.now() - startTime}ms`);
 
     // Prepare data for validation, adding temporary UUIDs
     const tempResult = { quiz: resultJson.quiz || [] }; // Handle case where AI might not return the top-level key
@@ -76,9 +67,7 @@ Return the result as a JSON object with a single key "quiz" which is an array of
     } catch (validationError) {
       console.error("Validation error:", validationError);
       return res.status(500).json({
-        error: "Failed to validate quiz format",
-        details: validationError.message
-      });
+        error: "Failed to validate quiz format", code: "INTERNAL_ERROR" });
     }
 
     if (!validationResult.success) {
@@ -88,8 +77,7 @@ Return the result as a JSON object with a single key "quiz" which is an array of
       );
       console.error("Raw AI Response:", resultJson);
       return res.status(500).json({
-        error: "AI service returned quiz data in an unexpected format.",
-        details: validationResult.error.errors,
+        error: "AI service returned quiz data in an unexpected format.", code: "AI_BAD_RESPONSE"
       });
     }
 
@@ -120,7 +108,7 @@ Return the result as a JSON object with a single key "quiz" which is an array of
     console.error("Error in generateQuiz controller:", error);
     res
       .status(500)
-      .json({ error: "Failed to generate quiz.", details: error.message });
+      .json({ error: "Failed to generate quiz.", code: errorCode(error) });
   }
 };
 
@@ -162,7 +150,7 @@ const evaluateAnswer = async (req, res) => {
     console.error("Error in evaluateAnswer controller:", error);
     res
       .status(500)
-      .json({ error: "Failed to evaluate quiz answer.", details: error.message });
+      .json({ error: "Failed to evaluate quiz answer.", code: errorCode(error) });
   }
 };
 

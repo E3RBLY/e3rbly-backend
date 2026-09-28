@@ -8,12 +8,10 @@ const {
   getConceptTypes,
   getConceptValues
 } = require("../controllers/grammarConceptsController");
-const authenticateToken = require("../middleware/authMiddleware");
 
 const router = express.Router();
 
-// Apply authentication middleware to all routes in this module
-router.use(authenticateToken);
+// Auth is applied once in server.js for all of /api.
 
 /**
  * @route POST /api/grammar/explanation

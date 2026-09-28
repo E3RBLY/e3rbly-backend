@@ -14,12 +14,17 @@
     "test": "jest",
     "test:watch": "jest --watch"
   },
-  "keywords": ["arabic", "language", "learning", "backend", "api"],
+  "keywords": [
+    "arabic",
+    "language",
+    "learning",
+    "backend",
+    "api"
+  ],
   "author": "",
   "license": "ISC",
   "description": "Backend API for E3rbly Arabic language learning platform",
   "dependencies": {
-    "@google/generative-ai": "^0.24.1",
     "axios": "^1.9.0",
     "colors": "^1.4.0",
     "cors": "^2.8.5",
@@ -35,6 +40,6 @@
     "supertest": "^7.1.0"
   },
   "engines": {
-    "node": ">=18.0.0"
+    "node": "22.x"
   }
 }

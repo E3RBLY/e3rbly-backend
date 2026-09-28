@@ -1,3 +1,4 @@
+const { errorCode } = require("../utils/errors");
 const aiService = require("../services/aiService");
 const { isValidArabic } = require("../utils/arabicValidator"); // Assuming validator is in utils
 const {
@@ -51,8 +52,7 @@ Arabic Text: ${arabicText}`;
       );
       console.error("Raw AI Response:", analysisResultJson); // Log raw response for debugging
       return res.status(500).json({
-        error: "AI service returned data in an unexpected format.",
-        details: validationResult.error.errors, // Provide Zod errors in response
+        error: "AI service returned data in an unexpected format.", code: "AI_BAD_RESPONSE"
       });
     }
 
@@ -63,7 +63,7 @@ Arabic Text: ${arabicText}`;
     console.error("Error in analyzeArabicText controller:", error);
     res
       .status(500)
-      .json({ error: "Failed to analyze Arabic text.", details: error.message });
+      .json({ error: "Failed to analyze Arabic text.", code: errorCode(error) });
   }
 };
 
@@ -110,8 +110,7 @@ Explanation (in Arabic):`;
           );
         console.error("Raw AI Response (explanation text):", explanationText);
         return res.status(500).json({
-            error: "AI service returned explanation in an unexpected format.",
-            details: validationResult.error.errors,
+            error: "AI service returned explanation in an unexpected format.", code: "AI_BAD_RESPONSE"
           });
     }
 
@@ -122,7 +121,7 @@ Explanation (in Arabic):`;
     console.error("Error in explainGrammarAnalysis controller:", error);
     res
       .status(500)
-      .json({ error: "Failed to explain grammar analysis.", details: error.message });
+      .json({ error: "Failed to explain grammar analysis.", code: errorCode(error) });
   }
 };
 
@@ -184,9 +183,7 @@ const analyzeArabicTextExplanation = async (req, res) => {
   } catch (error) {
     console.error("خطأ في إعراب النص:", error);
     res.status(500).json({ 
-      error: "فشل في التحليل النحوي",
-      details: error.message
-    });
+      error: "فشل في التحليل النحوي", code: errorCode(error) });
   }
 };
 module.exports = {
