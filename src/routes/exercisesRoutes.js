@@ -3,12 +3,10 @@ const {
   generateGrammarExercises,
   checkExerciseAnswer,
 } = require("../controllers/exercisesController");
-const authenticateToken = require("../middleware/authMiddleware");
 
 const router = express.Router();
 
-// Apply authentication middleware to all routes in this module
-router.use(authenticateToken);
+// Auth is applied once in server.js for all of /api.
 
 // Route for generating grammar exercises
 // POST /api/exercises/generate

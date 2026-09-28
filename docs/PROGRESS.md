@@ -17,4 +17,6 @@
 | 1 | Mobile unit tests + Flutter CI (analyze report-only, 0 errors) | ✅ mobile PR #13, CI green | 2026-09-29 |
 | 1 | ESLint/Prettier | ⏳ blocked: npm registry unreachable from Claude's workspace (Q8) | |
 | 1 | Crashlytics hook | ⏳ needs a device build to verify | |
-| 2 | **C2** Gemini: REST client, `GEMINI_MODEL` (default `gemini-3.6-flash`), per-call timeout, 1 retry, typed errors; SDK removed; Node pinned 22.x; `maxDuration` 60 | 🔄 PR open | 2026-09-29 |
+| 2 | **H2+H3** no raw error leaks, quiz fallback crash removed | ✅ PR #9 | 2026-09-29 |
+| 2 | **C4/H5/M1/M2** removed unused `/auth/*` + JWT, `/test-route`, double auth middleware, startup noise; service account via `FIREBASE_SERVICE_ACCOUNT_JSON`; strict mode fails fast without credentials | 🔄 PR open | 2026-09-29 |
+| 2 | **C2** Gemini: REST client, `GEMINI_MODEL` (default `gemini-3.6-flash`), per-call timeout, 1 retry, typed errors; SDK removed; Node pinned 22.x; `maxDuration` 60 | ✅ PR #8 | 2026-09-29 |

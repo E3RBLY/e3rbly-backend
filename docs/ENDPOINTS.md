@@ -1,4 +1,6 @@
-# Endpoints (backend `Final-Dev` @ d9bc833)
+# Endpoints
+
+> **Update (Phase 2):** rows 2 and 4–8 were **removed** (`/test-route` and the unused `/auth/*` + JWT scheme). `/api` auth now runs once, with Firebase ID tokens only. AI calls use the Gemini REST API with `GEMINI_MODEL` (default `gemini-3.6-flash`). Error bodies no longer carry `details`; they carry a `code`. The table below is the original Phase 0 inventory (`Final-Dev` @ d9bc833).
 
 Base URL (production, compat contract): `https://e3rbly-backend-main.vercel.app`
 

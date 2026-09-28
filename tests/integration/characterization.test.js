@@ -42,16 +42,16 @@ describe('meta routes', () => {
     expect(Array.isArray(res.body.apis)).toBe(true);
   });
 
-  test('POST /test-route is public and echoes OK (debug route, to be removed)', async () => {
+  test('POST /test-route was removed (debug route) -> 404', async () => {
     const res = await request(app).post('/test-route').send({ a: 1 });
-    expect(res.status).toBe(200);
-    expect(res.body).toEqual({ message: 'Test route works!' });
+    expect(res.status).toBe(404);
   });
 
   test('GET /api/config reports config (no AI key in tests)', async () => {
     const res = await request(app).get('/api/config');
     expect(res.status).toBe(200);
-    expect(res.body).toEqual({ authMode: 'optional', apiAvailable: false, firebaseConfigured: true });
+    // firebaseConfigured now reports the real state (was hard-coded true)
+    expect(res.body).toEqual({ authMode: 'optional', apiAvailable: false, firebaseConfigured: false });
   });
 
   test('malformed JSON body -> 400 INVALID_JSON (was 500 with parser message)', async () => {
@@ -71,29 +71,17 @@ describe('meta routes', () => {
   });
 });
 
-// ---------------------------------------------------------------- auth (validation paths only; no Firebase)
-describe('/auth input validation', () => {
+// ---------------------------------------------------------------- /auth removed (unused by the app; audit C4/H5)
+describe('/auth routes are gone', () => {
   test.each([
-    ['post', '/auth/register', { email: 'bad', password: '123456' }],
-    ['post', '/auth/register', { email: 'a@b.co', password: '123' }],
-    ['post', '/auth/login', { email: 'bad', password: 'x' }],
-    ['post', '/auth/request-verification-email', { email: 'bad' }],
-    ['post', '/auth/request-password-reset', {}],
-  ])('%s %s rejects invalid input with 400', async (method, path, body) => {
-    const res = await request(app)[method](path).send(body);
-    expect(res.status).toBe(400);
-    expect(res.body.error).toBe('Invalid input');
-    expect(Array.isArray(res.body.details)).toBe(true);
-  });
-
-  test('GET /auth/validate-token without token -> 401', async () => {
-    const res = await request(app).get('/auth/validate-token');
-    expect(res.status).toBe(401);
-  });
-
-  test('GET /auth/validate-token with garbage token -> 401', async () => {
-    const res = await request(app).get('/auth/validate-token').set('Authorization', 'Bearer garbage');
-    expect(res.status).toBe(401);
+    ['post', '/auth/register'],
+    ['post', '/auth/login'],
+    ['get', '/auth/validate-token'],
+    ['post', '/auth/request-verification-email'],
+    ['post', '/auth/request-password-reset'],
+  ])('%s %s -> 404', async (method, path) => {
+    const res = await request(app)[method](path).send({ email: 'a@b.co', password: '123456' });
+    expect(res.status).toBe(404);
   });
 });
 
