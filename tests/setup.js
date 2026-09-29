@@ -7,3 +7,5 @@ delete process.env.GOOGLE_GENAI_API_KEY;
 // Rate limits are exercised in their own tests; keep them out of the way elsewhere.
 process.env.RATE_LIMIT_API_PER_MIN = '100000';
 process.env.RATE_LIMIT_AI_PER_MIN = '100000';
+// Suites reuse identical bodies with different mocks; the cache has its own tests.
+process.env.AI_CACHE_MAX_ENTRIES = '0';

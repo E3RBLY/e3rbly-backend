@@ -18,7 +18,10 @@
  *   AI_MAX_OUTPUT_TOKENS  default 8192 (thinking tokens count against it)
  *   GROQ_API_KEY          optional; enables the Groq fallback
  *   GROQ_MODEL            default "openai/gpt-oss-120b"
- *   AI_FALLBACK_COOLDOWN_MS  how long a provider that hit quota/auth/outage is skipped, default 60000
+ *   AI_FALLBACK_COOLDOWN_MS  how long a provider that hit quota/auth/outage is skipped, default 0
+ *                         (0 = Gemini is tried first on every request; Groq only answers when Gemini fails)
+ *   AI_TOTAL_BUDGET_MS    whole-request budget across providers and retries, default 45000
+ *                         (the app gives up at 60s; each attempt gets at most what is left)
  *
  * Switching: providers are tried in order (Gemini, then Groq), skipping any in cooldown.
  * When another provider is available, a failing one is not retried; we move on at once.
@@ -30,6 +33,8 @@ const DEFAULT_MODEL = 'gemini-3.6-flash';
 const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
 const DEFAULT_GROQ_MODEL = 'openai/gpt-oss-120b';
 const RETRYABLE_STATUS = new Set([429, 500, 502, 503, 504]);
+/** Below this much remaining budget, starting another AI attempt is pointless. */
+const MIN_ATTEMPT_MS = 1000;
 
 class AiServiceError extends Error {
   /**
@@ -60,7 +65,8 @@ function getConfig() {
     maxOutputTokens: intFromEnv('AI_MAX_OUTPUT_TOKENS', 8192),
     groqApiKey: process.env.GROQ_API_KEY,
     groqModel: process.env.GROQ_MODEL || DEFAULT_GROQ_MODEL,
-    cooldownMs: intFromEnv('AI_FALLBACK_COOLDOWN_MS', 60000),
+    cooldownMs: intFromEnv('AI_FALLBACK_COOLDOWN_MS', 0),
+    totalBudgetMs: intFromEnv('AI_TOTAL_BUDGET_MS', 45000),
   };
 }
 
@@ -109,7 +115,7 @@ async function postJson(url, headers, body, timeoutMs) {
 }
 
 /** One HTTP call to generateContent. Returns the concatenated text of the first candidate. */
-async function callGemini(prompt, { json = false } = {}) {
+async function callGemini(prompt, { json = false, timeoutMs } = {}) {
   const cfg = getConfig();
   if (!cfg.apiKey) {
     throw new AiServiceError('AI_NOT_CONFIGURED', 'GOOGLE_GENAI_API_KEY is not set');
@@ -127,7 +133,7 @@ async function callGemini(prompt, { json = false } = {}) {
     `${API_BASE}/models/${encodeURIComponent(cfg.model)}:generateContent`,
     { 'x-goog-api-key': cfg.apiKey },
     body,
-    cfg.timeoutMs,
+    timeoutMs ?? cfg.timeoutMs,
   );
 
   if (data?.promptFeedback?.blockReason) {
@@ -149,7 +155,7 @@ async function callGemini(prompt, { json = false } = {}) {
 }
 
 /** One Groq chat-completions call (OpenAI-compatible). Returns the reply text. */
-async function callGroq(prompt, { json = false } = {}) {
+async function callGroq(prompt, { json = false, timeoutMs } = {}) {
   const cfg = getConfig();
   if (!cfg.groqApiKey) {
     throw new AiServiceError('AI_NOT_CONFIGURED', 'GROQ_API_KEY is not set');
@@ -164,7 +170,7 @@ async function callGroq(prompt, { json = false } = {}) {
     ...(json ? { response_format: { type: 'json_object' } } : {}),
   };
 
-  const data = await postJson(GROQ_URL, { Authorization: `Bearer ${cfg.groqApiKey}` }, body, cfg.timeoutMs);
+  const data = await postJson(GROQ_URL, { Authorization: `Bearer ${cfg.groqApiKey}` }, body, timeoutMs ?? cfg.timeoutMs);
   const choice = data?.choices?.[0];
   const text = typeof choice?.message?.content === 'string' ? choice.message.content : '';
   if (choice?.finish_reason === 'length') {
@@ -204,12 +210,20 @@ async function withFallback(attempt) {
   const ready = configured.filter((p) => (cooldownUntil.get(p.name) || 0) <= now);
   const order = ready.length > 0 ? ready : configured;
 
+  const deadline = Date.now() + cfg.totalBudgetMs;
+  const remaining = () => deadline - Date.now();
+
   let lastErr;
   for (let i = 0; i < order.length; i++) {
     const provider = order[i];
     const isLast = i === order.length - 1;
+    if (remaining() < MIN_ATTEMPT_MS) {
+      throw lastErr || new AiServiceError('AI_TIMEOUT', 'AI time budget exhausted', { retryable: true });
+    }
+    // Each attempt may use at most the time left in the request budget.
+    const call = (prompt, opts = {}) => provider.call(prompt, { ...opts, timeoutMs: Math.min(cfg.timeoutMs, remaining()) });
     try {
-      const result = await withRetry(() => attempt(provider.call), isLast ? cfg.maxRetries : 0);
+      const result = await withRetry(() => attempt(call), isLast ? cfg.maxRetries : 0, deadline);
       cooldownUntil.delete(provider.name);
       return result;
     } catch (err) {
@@ -222,16 +236,21 @@ async function withFallback(attempt) {
   throw lastErr;
 }
 
-/** Run fn, retrying only retryable AiServiceErrors, at most AI_MAX_RETRIES times. */
-async function withRetry(fn, maxRetries = getConfig().maxRetries) {
+/**
+ * Run fn, retrying only retryable AiServiceErrors, at most AI_MAX_RETRIES times.
+ * With a deadline, no retry starts unless the backoff plus a minimal attempt still fits.
+ */
+async function withRetry(fn, maxRetries = getConfig().maxRetries, deadline = Infinity) {
   for (let attempt = 0; ; attempt++) {
     try {
       return await fn();
     } catch (err) {
       const retryable = err instanceof AiServiceError && err.retryable;
       if (!retryable || attempt >= maxRetries) throw err;
+      const wait = backoffMs(attempt);
+      if (Date.now() + wait + MIN_ATTEMPT_MS > deadline) throw err;
       console.warn(`AI call failed (${err.code}); retry ${attempt + 1}/${maxRetries}`);
-      await sleep(backoffMs(attempt));
+      await sleep(wait);
     }
   }
 }

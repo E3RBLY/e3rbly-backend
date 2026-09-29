@@ -9,7 +9,11 @@ const {
   getConceptValues
 } = require("../controllers/grammarConceptsController");
 
+const { createResponseCache } = require("../middleware/responseCache");
+
 const router = express.Router();
+// Same concept -> same explanation: serve repeats from memory (no AI cost, instant).
+const cache = createResponseCache();
 
 // Auth is applied once in server.js for all of /api.
 
@@ -22,7 +26,7 @@ const router = express.Router();
  *   conceptName: string
  * }
  */
-router.post("/explanation", getGrammarExplanation);
+router.post("/explanation", cache, getGrammarExplanation);
 
 /**
  * @route POST /api/grammar/related
@@ -34,7 +38,7 @@ router.post("/explanation", getGrammarExplanation);
  *   count: number (optional, default: 3)
  * }
  */
-router.post("/related", getRelatedConcepts);
+router.post("/related", cache, getRelatedConcepts);
 
 /**
  * @route GET /api/grammar/concept-types
