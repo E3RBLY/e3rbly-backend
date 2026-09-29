@@ -1,4 +1,4 @@
-const { errorCode } = require("../utils/errors");
+const { errorCode, errorStatus } = require("../utils/errors");
 
 const aiService = require("../services/aiService");
 const { v4: uuidv4 } = require("uuid");
@@ -107,7 +107,7 @@ Return the result as a JSON object with a single key "quiz" which is an array of
   } catch (error) {
     console.error("Error in generateQuiz controller:", error);
     res
-      .status(500)
+      .status(errorStatus(error))
       .json({ error: "Failed to generate quiz.", code: errorCode(error) });
   }
 };
@@ -149,7 +149,7 @@ const evaluateAnswer = async (req, res) => {
   } catch (error) {
     console.error("Error in evaluateAnswer controller:", error);
     res
-      .status(500)
+      .status(errorStatus(error))
       .json({ error: "Failed to evaluate quiz answer.", code: errorCode(error) });
   }
 };
