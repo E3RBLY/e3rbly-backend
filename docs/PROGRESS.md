@@ -25,5 +25,7 @@
 | 2 | Mobile **M4/M6** build-time `API_BASE_URL`, friendly 429/413/5xx, debug-only logging | ✅ mobile PR #15, CI green | 2026-09-29 |
 | 1b | `scripts/smoke-live.js` (AI-call cap, latency p50/max, exit code) + `docs/TEST_REPORT.md` | ✅ this PR | 2026-09-29 |
 | 1c | Zero-config Vercel (`vercel.json` = region only), `docs/DEPLOY.md` | ✅ this PR; **owner: create project + env vars** | 2026-09-29 |
-| 1c | Preview deploy → live smoke → production | ⏳ owner (new account + new Gemini key) | |
+| 1c | Production live at `https://e3rbly-api-new.vercel.app` (new Vercel account, `main`), live smoke 9/10 PASS | ✅ | 2026-09-29 |
+| 2 | Structured `/api/analysis/analyze` returns AI_BAD_RESPONSE on the new model (unused by app) | ⏳ needs Vercel log | |
+| 1c | Mobile release pointing at the new URL | ⏳ next | |
 
