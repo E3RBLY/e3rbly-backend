@@ -37,17 +37,21 @@ const FeaturesSchema = z.union([
 
 // Define a non-recursive syntax tree structure to avoid recursion issues
 // Base node schema
+// Models return null for "no value" (particles have no root/pattern, the tree root has no role).
+// Normalize to "" / {} so the response shape stays stable for clients.
+const text = () => z.string().nullish().transform((v) => v ?? "");
+
 const SyntacticNodeSchema = z.object({
-  type: z.string().describe("Type of syntactic node (e.g., sentence, clause, phrase)"),
-  role: z.string().describe("Grammatical role (e.g., subject, predicate, object)"),
-  tokenIndices: z.array(z.number()).optional().describe("Indices of tokens this node covers"),
+  type: text().describe("Type of syntactic node (e.g., sentence, clause, phrase)"),
+  role: text().describe("Grammatical role (e.g., subject, predicate, object)"),
+  tokenIndices: z.array(z.number()).nullish().transform((v) => v ?? undefined).describe("Indices of tokens this node covers"),
 });
 
 // Recursive schema definition for the tree structure
 // Use z.lazy to handle recursion
 const SyntaxTreeSchema = z.lazy(() => 
   SyntacticNodeSchema.extend({
-    children: z.array(SyntaxTreeSchema).optional().describe("Child nodes in the syntax tree"),
+    children: z.array(SyntaxTreeSchema).nullish().transform((v) => v ?? undefined).describe("Child nodes in the syntax tree"),
   })
 );
 
@@ -57,11 +61,10 @@ const AnalyzeArabicTextOutputSchema = z.object({
     z.object({
       surface: z.string().describe("The surface form of the token."),
       diacritized: z.string().describe("The fully diacritized form of the token."),
-      root: z.string().describe("The root of the token."),
-      pattern: z.string().describe("The pattern of the token."),
+      root: text().describe("The root of the token (empty for particles)."),
+      pattern: text().describe("The pattern of the token (empty for particles)."),
       pos: z.string().describe("The part of speech of the token (noun, verb, particle, etc.)."),
-      // Using .catchall(z.any()) to be more lenient with features from AI
-      features: z.record(z.string(), z.any()).describe("Morphological features based on part of speech"), 
+      features: z.record(z.string(), z.any()).nullish().transform((v) => v ?? {}).describe("Morphological features based on part of speech"),
       // features: FeaturesSchema.describe("Morphological features based on part of speech"), // Stricter version
     })
   ),

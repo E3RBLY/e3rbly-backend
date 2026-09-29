@@ -147,6 +147,21 @@ describe('POST /api/analysis/analyze', () => {
     expect(res.body.details).toBeUndefined();
   });
 
+  test('null root/pattern/role/features from the model are normalized (live bug 2026-09-29)', async () => {
+    aiService.generateStructuredContent.mockResolvedValue({
+      tokens: [
+        { surface: 'إلى', diacritized: 'إِلَى', root: null, pattern: null, pos: 'particle', features: null },
+        { surface: 'المدرسة', diacritized: 'الْمَدْرَسَةِ', root: 'د ر س', pattern: 'مَفْعَلَة', pos: 'noun', features: { case: 'genitive' } },
+      ],
+      syntaxTree: { type: 'phrase', role: null, tokenIndices: [0, 1], children: null },
+    });
+    const res = await request(app).post('/api/analysis/analyze').send({ arabicText: 'إلى المدرسة' });
+    expect(res.status).toBe(200);
+    expect(res.body.tokens[0]).toMatchObject({ root: '', pattern: '', features: {} });
+    expect(res.body.tokens[1].diacritized).toBe('الْمَدْرَسَةِ');
+    expect(res.body.syntaxTree.role).toBe('');
+  });
+
   test('FIXED (H3): provider error message is not sent to the client', async () => {
     aiService.generateStructuredContent.mockRejectedValue(new Error('upstream secret detail'));
     const res = await request(app).post('/api/analysis/analyze').send({ arabicText: 'ذهب الولد' });
@@ -325,6 +340,22 @@ describe('POST /api/quiz/generate', () => {
       .send({ topic: 'الفاعل', difficulty: 'beginner', questionCount: 1 });
     expect(res.status).toBe(500);
     expect(res.body).toEqual({ error: 'Failed to generate quiz.', code: 'AI_UNAVAILABLE' });
+  });
+});
+
+describe('AI provider quota exhausted', () => {
+  const rateLimited = () => Object.assign(new Error('quota'), { code: 'AI_RATE_LIMITED' });
+  const cases = [
+    ['/api/analysis/analyze', { arabicText: 'ذهب الولد إلى المدرسة' }, 'generateStructuredContent'],
+    ['/api/analysis/analyze/text', { arabicText: 'ذهب الولد إلى المدرسة' }, 'generateContent'],
+    ['/api/quiz/generate', { topic: 'الفاعل', difficulty: 'beginner', questionCount: 1 }, 'generateStructuredContent'],
+  ];
+  test.each(cases)('FIXED: %s -> 429 AI_RATE_LIMITED (was 500), so the app shows "try again shortly"', async (path, body, fn) => {
+    aiService[fn].mockRejectedValue(rateLimited());
+    const res = await request(app).post(path).send(body);
+    expect(res.status).toBe(429);
+    expect(res.body.code).toBe('AI_RATE_LIMITED');
+    expect(typeof res.body.error).toBe('string');
   });
 });
 
