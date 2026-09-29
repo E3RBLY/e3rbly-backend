@@ -21,3 +21,8 @@ coverage/
 npm-debug.log*
 .DS_Store
 Thumbs.db
+
+# Pilot drafts and evaluation-only gold data must never be committed
+pilot-output/
+gold/
+*.gold.json

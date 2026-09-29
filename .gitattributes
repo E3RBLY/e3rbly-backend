@@ -1,3 +1,6 @@
 * text=auto eol=lf
 *.png binary
 *.jpg binary
+
+# Quran text must stay byte-exact (Tanzil terms: changing it is not allowed)
+modules/quran/data/* -text
