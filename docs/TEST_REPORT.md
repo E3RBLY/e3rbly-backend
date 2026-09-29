@@ -33,3 +33,19 @@ Endpoint coverage: every live route has at least one success test and its valida
 | `flutter analyze` (report-only) | 0 errors | CI, Flutter 3.29.3 |
 | `flutter test`: quota manager, error handler, font manifest, env config | PASS | CI |
 | Manual run on a device against the new backend | pending | owner |
+
+## Quran content module (local, 2026-09-29)
+
+`npx jest`: 15 suites, 405 tests PASS (legacy 351 unchanged + 54 new: module, pilot harness, mount). No AI calls, no network.
+
+| Endpoint | Result | Notes |
+|---|---|---|
+| GET `/v1/quran/source` | PASS | attribution, checksum, notice |
+| GET `/v1/quran/surahs` | PASS | 114 rows |
+| GET `/v1/quran/surahs/:n/ayat` | PASS | all 114 surahs served byte-identical to the pack (6,236 ayat); 400/404 matrix incl. `from`/`to`, unknown query keys |
+| GET `/v1/quran/ayat/:s/:a` | PASS | UTF-8 JSON, harakat intact, basmala split lossless for all 114 |
+| Read-only (POST/DELETE) | PASS | 404 envelope |
+| ETag / 304, 429 envelope, `/health` | PASS | |
+| Integrity | PASS | per-surah + whole-file SHA-256, independent ayah counts (114 / 6,236), tamper test (one changed harakah is detected), missing-ayah test |
+| Mounted in main app | PASS | `tests/integration/quranMount.test.js`: public (no token), legacy routes unchanged |
+| Live Preview smoke | NOT RUN | `scripts/smoke-live.js` now checks the Quran routes; run after the Preview deploy. Watch the function log at start-up: the pack must load (data files are read with `fs` from `modules/quran/data`) |

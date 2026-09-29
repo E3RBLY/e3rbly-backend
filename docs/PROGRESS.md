@@ -27,3 +27,7 @@
 | 1c | Zero-config Vercel (`vercel.json` = region only), `docs/DEPLOY.md` | ✅ this PR; **owner: create project + env vars** | 2026-09-29 |
 | 1c | Preview deploy → live smoke → production | ⏳ owner (new account + new Gemini key) | |
 
+| X0 | Content sources audit (`CONTENT_SOURCES.md`), permission-request drafts, `licenses/tanzil-terms.md` | ✅ drafts; **owner sends requests** | 2026-09-29 |
+| X1 | `modules/quran/`: Tanzil import, checksums, `/v1/quran/*` (4 routes), 35 tests, docs | ✅ local, branch `feat/x1-quran-content` (uncommitted) | 2026-09-29 |
+| X1 | Module mounted in `server.js` (2 lines, owner-approved) + Quran checks in `scripts/smoke-live.js` | ✅ code; ⏳ Preview deploy is the owner's step (DEPLOY.md) | 2026-09-29 |
+| X2 | Pilot harness `modules/quran/pilot` (dry-run default, hard $ cap, one provider, ungrounded, altered words rejected) + 19 tests | ✅ built, **NOT RUN**: needs owner's key, cap, prices, gold choice (`PILOT_AYAT.md` list) | 2026-09-29 |

@@ -62,7 +62,16 @@ const expect200 = (pred, msg) => (status, json) => (status !== 200 ? `HTTP ${sta
 
 (async () => {
   await call('GET /', 'GET', '/', null, { check: expect200((j) => j && j.message, 'no message') });
-  await call('GET /api/config', 'GET', '/api/config', null, {
+  await call('GET /v1/quran/source', 'GET', '/v1/quran/source', null, {
+    check: expect200((j) => j && j.ayah_count === 6236 && j.surah_count === 114 && /^[0-9a-f]{64}$/.test(j.pack_sha256), 'pack counts or checksum wrong'),
+  });
+  await call('GET /v1/quran/ayat/1/1', 'GET', '/v1/quran/ayat/1/1', null, {
+    check: expect200((j) => j && j.ayah && HARAKAT.test(j.ayah.text) && j.source && j.source.url === 'https://tanzil.net', 'text/harakat/attribution missing'),
+  });
+  await call('GET /v1/quran/ayat/1/8 (-> 404)', 'GET', '/v1/quran/ayat/1/8', null, {
+    check: (s, j) => (s === 404 && j && j.error && j.error.code === 'NOT_FOUND' ? '' : `expected 404 NOT_FOUND, got ${s}`),
+  });
+  await call('GET /api/config','GET', '/api/config', null, {
     check: expect200((j) => j && j.apiAvailable === true, 'apiAvailable is false (GOOGLE_GENAI_API_KEY missing?)'),
   });
   await call('GET concept-types', 'GET', '/api/grammar/concept-types', null, {

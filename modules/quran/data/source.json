@@ -1,0 +1,15 @@
+{
+  "id": "tanzil-uthmani",
+  "name_ar": "مشروع تنزيل",
+  "name_en": "Tanzil Project",
+  "url": "https://tanzil.net",
+  "license": "CC BY 3.0 + Tanzil terms (verbatim copies only)",
+  "license_url": "https://tanzil.net/docs/text_license",
+  "variant": "uthmani",
+  "variant_notes": "Tanzil 'Uthmani' (full), Hafs 'an 'Asim. Downloaded as txt-2 (surah|ayah|text) with default options.",
+  "version": "1.1",
+  "retrieved_at": "2026-09-29",
+  "download_url": "https://tanzil.net/pub/download/index.php?quranType=uthmani&outType=txt-2&agree=true",
+  "provenance": "imported",
+  "review_status": "unreviewed"
+}

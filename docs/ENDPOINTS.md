@@ -32,3 +32,16 @@ AI = calls Gemini (`gemini-2.0-flash`, shut down 2026-06-01). No per-call timeou
 | 19 | GET | `/api/grammar/concept-values/:conceptType` | /api mw ×2 | path | `{conceptType, values}` (route registered twice) | – | ? | none |
 
 Error shape today is inconsistent: `{error}`, `{error, message}`, `{error, details: <raw provider message>}`.
+
+## Quran content module (X1, isolated in `modules/quran/`, mounted in `server.js` via `mountQuran(app)`)
+
+Read-only, no auth, no AI, no DB. Data: Tanzil Uthmani text (CC BY 3.0, unmodified). Errors: `{ error: { code, message, details? } }`. Every 200 carries `source` (name, url, license). Headers: `Cache-Control: public, max-age=3600`, strong `ETag` (304 supported). Limit: 120/min per IP per instance.
+
+| # | Method | Path | Input | Output | AI | Tests |
+|---|---|---|---|---|---|---|
+| 20 | GET | `/v1/quran/source` | – | source, variant, version, counts, `pack_sha256`, license notice, `provenance`, `review_status` | none | PASS (local) |
+| 21 | GET | `/v1/quran/surahs` | – | 114 × `{number, ayah_count, sha256}` | none | PASS (local) |
+| 22 | GET | `/v1/quran/surahs/:n/ayat?from=&to=` | n 1–114; from/to ≥1 | `{surah, from, to, total, ayat[{surah, ayah, text, text_ayah, basmala_prefixed}]}`; 400 bad params, 404 out of range | none | PASS (local) |
+| 23 | GET | `/v1/quran/ayat/:s/:a` | s 1–114, a ≥1 | `{ayah:{surah, ayah, text, text_ayah, basmala_prefixed}}`; 404 if a > ayah count | none | PASS (local) |
+
+`text` is Tanzil's string, never edited. Tanzil prefixes the basmala to ayah 1 of every surah except 1 and 9; `text_ayah` is the ayah proper (lossless split, `text === basmala + " " + text_ayah`), `basmala_prefixed` says whether it happened.
