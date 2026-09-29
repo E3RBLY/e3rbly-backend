@@ -116,7 +116,7 @@ test('candidate with no text -> AI_EMPTY', async () => {
   fetch.mockResolvedValue({
     ok: true,
     status: 200,
-    json: async () => ({ candidates: [{ content: { parts: [] }, finishReason: 'MAX_TOKENS' }] }),
+    json: async () => ({ candidates: [{ content: { parts: [] }, finishReason: 'SAFETY' }] }),
   });
   await expect(ai.generateContent('p')).rejects.toMatchObject({ code: 'AI_EMPTY' });
 });
@@ -127,4 +127,19 @@ test('error messages never contain the API key', async () => {
     const err = await ai.generateContent('p').catch((e) => e);
     expect(String(err.message)).not.toContain(KEY);
   }
+});
+
+test('output cut off at the token limit -> AI_TRUNCATED, not a JSON parse error', async () => {
+  fetch.mockResolvedValue({
+    ok: true,
+    status: 200,
+    json: async () => ({ candidates: [{ content: { parts: [{ text: '{"tokens":[{"surface":"ذهب"' }] }, finishReason: 'MAX_TOKENS' }] }),
+  });
+  await expect(ai.generateStructuredContent('p')).rejects.toMatchObject({ code: 'AI_TRUNCATED' });
+});
+
+test('default output budget is 8192 tokens (thinking tokens share it)', async () => {
+  fetch.mockResolvedValue(okResponse('x'));
+  await ai.generateContent('p');
+  expect(JSON.parse(fetch.mock.calls[0][1].body).generationConfig.maxOutputTokens).toBe(8192);
 });

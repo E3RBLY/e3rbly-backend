@@ -20,6 +20,8 @@ Vercel runs this Express app with **zero configuration**: `server.js` exports th
 |---|---|---|---|
 | `GOOGLE_GENAI_API_KEY` | your **new** Gemini key | yes | All AI endpoints |
 | `GEMINI_MODEL` | `gemini-3.6-flash` | no (that's the default) | Change the model later without code |
+| `GROQ_API_KEY` | your Groq key | no, but recommended | Fallback when Gemini is rate-limited, down, or its key fails |
+| `GROQ_MODEL` | `openai/gpt-oss-120b` | no (that's the default) | Change the fallback model without code |
 | `AUTH_MODE` | `optional` | **yes** | Released apps send no login token; `strict` would break them (see §4) |
 | `RATE_LIMIT_AI_PER_MIN` | `10` | no | Per IP, per instance |
 | `RATE_LIMIT_API_PER_MIN` | `60` | no | |
@@ -60,4 +62,4 @@ Vercel dashboard → project → **Deployments** → pick the last good deployme
 
 ## 5. Environment variables the code reads
 
-`GOOGLE_GENAI_API_KEY`, `GEMINI_MODEL`, `AI_TIMEOUT_MS`, `AI_MAX_RETRIES`, `AI_MAX_OUTPUT_TOKENS`, `AUTH_MODE`, `FIREBASE_SERVICE_ACCOUNT_JSON`, `RATE_LIMIT_API_PER_MIN`, `RATE_LIMIT_AI_PER_MIN`, `MAX_TEXT_CHARS`, `MAX_BODY_SIZE`, `PORT` (local only). See `.env.example`.
+`GOOGLE_GENAI_API_KEY`, `GEMINI_MODEL`, `AI_TIMEOUT_MS`, `AI_MAX_RETRIES`, `AI_MAX_OUTPUT_TOKENS`, `GROQ_API_KEY`, `GROQ_MODEL`, `AI_FALLBACK_COOLDOWN_MS`, `AUTH_MODE`, `FIREBASE_SERVICE_ACCOUNT_JSON`, `RATE_LIMIT_API_PER_MIN`, `RATE_LIMIT_AI_PER_MIN`, `MAX_TEXT_CHARS`, `MAX_BODY_SIZE`, `PORT` (local only). See `.env.example`.
