@@ -31,7 +31,7 @@ beforeEach(() => {
   ai = require('../../src/services/aiService');
 });
 afterEach(() => {
-  for (const k of ['GOOGLE_GENAI_API_KEY', 'GROQ_API_KEY', 'GROQ_MODEL', 'AI_MAX_RETRIES', 'AI_FALLBACK_COOLDOWN_MS']) delete process.env[k];
+  for (const k of ['GOOGLE_GENAI_API_KEY', 'GROQ_API_KEY', 'GROQ_MODEL', 'AI_MAX_RETRIES', 'AI_FALLBACK_COOLDOWN_MS', 'AI_TOTAL_BUDGET_MS', 'AI_TIMEOUT_MS']) delete process.env[k];
   jest.restoreAllMocks();
 });
 
@@ -54,7 +54,18 @@ test('Gemini rate-limited: switches to Groq at once (no Gemini retry) and return
   expect(body.response_format).toBeUndefined();
 });
 
-test('after a Gemini quota error, Gemini is skipped during the cooldown', async () => {
+test('default: Gemini is tried first on EVERY request, even right after a quota error', async () => {
+  fetch
+    .mockResolvedValueOnce(statusResponse(429))
+    .mockResolvedValueOnce(groqOk('a'))
+    .mockResolvedValueOnce(geminiOk('b'));
+  await expect(ai.generateContent('p1')).resolves.toBe('a');
+  await expect(ai.generateContent('p2')).resolves.toBe('b');
+  expect(urls()).toEqual([GEMINI_URL, GROQ_URL, GEMINI_URL]);
+});
+
+test('with AI_FALLBACK_COOLDOWN_MS set, a failed Gemini is skipped during the cooldown', async () => {
+  process.env.AI_FALLBACK_COOLDOWN_MS = '60000';
   fetch
     .mockResolvedValueOnce(statusResponse(429))
     .mockResolvedValueOnce(groqOk('a'))
@@ -145,4 +156,36 @@ test('no provider configured -> AI_NOT_CONFIGURED', async () => {
   delete process.env.GROQ_API_KEY;
   await expect(ai.generateContent('p')).rejects.toMatchObject({ code: 'AI_NOT_CONFIGURED' });
   expect(fetch).not.toHaveBeenCalled();
+});
+
+describe('total time budget (the app gives up after 60s)', () => {
+  const delayed = (ms, response) => () => new Promise((resolve) => setTimeout(() => resolve(response), ms));
+
+  test('each attempt timeout is capped by the remaining budget', async () => {
+    process.env.AI_TOTAL_BUDGET_MS = '5000';
+    process.env.AI_TIMEOUT_MS = '20000';
+    const spy = jest.spyOn(AbortSignal, 'timeout');
+    fetch.mockResolvedValue(geminiOk('x'));
+    await ai.generateContent('p');
+    expect(spy.mock.calls[0][0]).toBeLessThanOrEqual(5000);
+  });
+
+  test('slow Gemini used up the budget: Groq is not started, request fails fast', async () => {
+    process.env.AI_TOTAL_BUDGET_MS = '1200';
+    fetch.mockImplementationOnce(delayed(400, statusResponse(503))).mockResolvedValue(groqOk('late'));
+    const err = await ai.generateContent('p').catch((e) => e);
+    expect(err).toBeInstanceOf(ai.AiServiceError);
+    expect(urls()).toEqual([GEMINI_URL]);
+  });
+
+  test('no retry backoff that would run past the budget', async () => {
+    delete process.env.GOOGLE_GENAI_API_KEY;
+    process.env.AI_TOTAL_BUDGET_MS = '1500';
+    process.env.AI_MAX_RETRIES = '3';
+    fetch.mockResolvedValue(statusResponse(503));
+    const t0 = Date.now();
+    await expect(ai.generateContent('p')).rejects.toMatchObject({ code: 'AI_UNAVAILABLE' });
+    expect(fetch).toHaveBeenCalledTimes(1);
+    expect(Date.now() - t0).toBeLessThan(1500);
+  });
 });

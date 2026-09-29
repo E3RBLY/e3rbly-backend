@@ -38,6 +38,11 @@ app.get("/", (req, res) => {
   });
 });
 
+// Uptime checks: no rate limit, no auth, no AI call.
+app.get("/health", (req, res) => {
+  res.json({ status: "ok" });
+});
+
 // --- API: rate limits -> input caps -> auth (AUTH_MODE), applied once for all of /api ---
 const perMinute = (name, fallback) => {
   const n = Number.parseInt(process.env[name], 10);
@@ -56,7 +61,7 @@ app.use("/api", authenticateToken);
 app.get("/api/config", (req, res) => {
   res.json({
     authMode: process.env.AUTH_MODE || "strict",
-    apiAvailable: !!process.env.GOOGLE_GENAI_API_KEY,
+    apiAvailable: !!(process.env.GOOGLE_GENAI_API_KEY || process.env.GROQ_API_KEY),
     firebaseConfigured: authenticateToken.firebaseInitialized,
   });
 });

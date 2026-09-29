@@ -12,6 +12,7 @@ AI = calls Gemini (`gemini-2.0-flash`, shut down 2026-06-01). No per-call timeou
 |---|---|---|---|---|---|---|---|---|
 | 1 | GET | `/` | public | — | service info + route list | – | no | PASS (local) |
 | 2 | POST | `/test-route` | public | any | `{message}`, logs body | – | no | none, **remove** |
+| 3a | GET | `/health` | none | — | `{status:"ok"}` for uptime monitors; no rate limit, no AI | – | no | none |
 | 3 | GET | `/api/config` | /api mw | — | `{authMode, apiAvailable, firebaseConfigured:true}` | – | no | none |
 | 4 | POST | `/auth/register` | public | `{email, password≥6}` | 201 `{message,user}` / 409 | – | no | none |
 | 5 | POST | `/auth/login` | public | `{email,password}` | `{token (JWT), user}` | – | no | none |
