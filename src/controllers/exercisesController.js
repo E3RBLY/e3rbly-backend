@@ -1,3 +1,4 @@
+const { errorCode } = require("../utils/errors");
 
 const aiService = require("../services/aiService");
 const { v4: uuidv4 } = require("uuid");
@@ -88,8 +89,7 @@ Return the result as a JSON object with a single key "exercises" which is an arr
       );
       console.error("Raw AI Response:", resultJson);
       return res.status(500).json({
-        error: "AI service returned exercises in an unexpected format.",
-        details: validationResult.error.errors,
+        error: "AI service returned exercises in an unexpected format.", code: "AI_BAD_RESPONSE"
       });
     }
 
@@ -106,7 +106,7 @@ Return the result as a JSON object with a single key "exercises" which is an arr
     console.error(`[${new Date().toISOString()}] Error in generateGrammarExercises controller:`, error);
     res
       .status(500)
-      .json({ error: "Failed to generate exercises.", details: error.message });
+      .json({ error: "Failed to generate exercises.", code: errorCode(error) });
   }
 };
 
@@ -173,8 +173,7 @@ Evaluate the user's answer: ${userAnswer}`;
           );
         console.error("Raw AI Response:", feedbackResultJson);
         return res.status(500).json({
-            error: "AI service returned feedback in an unexpected format.",
-            details: validationResult.error.errors,
+            error: "AI service returned feedback in an unexpected format.", code: "AI_BAD_RESPONSE"
           });
     }
 
@@ -187,7 +186,7 @@ Evaluate the user's answer: ${userAnswer}`;
     console.error(`[${new Date().toISOString()}] Error in checkExerciseAnswer controller:`, error);
     res
       .status(500)
-      .json({ error: "Failed to check exercise answer.", details: error.message });
+      .json({ error: "Failed to check exercise answer.", code: errorCode(error) });
   }
 };
 

@@ -1,158 +1,93 @@
-const admin = require("firebase-admin");
-const jwt = require("jsonwebtoken");
-const dotenv = require("dotenv");
-
-// Ensure environment variables are loaded
-dotenv.config();
-
-// Get the auth mode from environment variables - default to 'strict'
-const AUTH_MODE = process.env.AUTH_MODE || 'strict';
-// JWT Secret key
-const JWT_SECRET = process.env.JWT_SECRET || "your_jwt_secret_key";
-
-console.log(`AUTH_MODE set to: ${AUTH_MODE}`);
-
-// Load the service account key
-let serviceAccount;
-try {
-  serviceAccount = require("../../firebase-service-account-key.json");
-} catch (error) {
-  console.warn("Firebase service account key not found or invalid. Firebase authentication will not work.");
-  
-  if (AUTH_MODE !== 'optional') {
-    console.error("ERROR: Missing Firebase credentials but AUTH_MODE is not set to 'optional'");
-    console.error("Set AUTH_MODE=optional in .env file to allow requests without authentication");
-    process.exit(1);
-  }
-}
-
-// Initialize Firebase Admin SDK only if we have valid credentials
-let firebaseInitialized = false;
-if (serviceAccount) {
-  try {
-    if (!admin.apps.length) {
-      admin.initializeApp({
-        credential: admin.credential.cert(serviceAccount),
-      });
-      console.log("Firebase Admin SDK initialized successfully.");
-      firebaseInitialized = true;
-    } else {
-      console.log("Firebase Admin SDK already initialized.");
-      firebaseInitialized = true;
-    }
-  } catch (error) {
-    console.error("Error initializing Firebase Admin SDK:", error);
-    if (AUTH_MODE !== 'optional') {
-      process.exit(1);
-    }
-  }
-}
-
 /**
- * Authentication middleware that verifies either:
- * 1. Firebase ID tokens (legacy method)
- * 2. JWT tokens (new method)
- * 
- * When AUTH_MODE=optional, requests without tokens or with invalid tokens will be allowed.
+ * Auth for /api/*, controlled by AUTH_MODE:
+ *   strict   (default) requires a valid Firebase ID token with a verified email
+ *   optional lets every request through; a valid token still sets req.user
+ *
+ * Tokens are Firebase ID tokens from the app's Firebase Auth sign-in
+ * (`Authorization: Bearer <idToken>`). The self-issued JWT scheme was removed
+ * together with the unused /auth routes (audit C4/H5).
+ *
+ * Firebase Admin credentials, in order of preference:
+ *   FIREBASE_SERVICE_ACCOUNT_JSON  the service-account JSON, raw or base64 (use this on Vercel)
+ *   firebase-service-account-key.json in the repo root (local dev only; git-ignored)
  */
-const authenticateToken = async (req, res, next) => {
-  const authHeader = req.headers["authorization"];
-  const token = authHeader && authHeader.startsWith("Bearer ") ? authHeader.split(" ")[1] : null; // Expecting "Bearer TOKEN"
+const admin = require("firebase-admin");
 
-  // Log the current authentication settings and token presence/length
-  console.log(`Authentication check - AUTH_MODE: ${AUTH_MODE}`);
-  if (token) {
-    console.log(`Received Bearer token (length: ${token.length}). Verifying...`); // Log token presence and length
-  } else {
-    console.log("No Bearer token found in Authorization header.");
-  }
-  
-  // Case 1: No token provided
-  if (!token) {
-    if (AUTH_MODE === 'optional') {
-      console.log("No token provided. Proceeding without authentication (AUTH_MODE=optional).");
-      req.user = null; // Indicate no authenticated user
-      return next();
-    } else {
-      return res.status(401).json({ error: "Unauthorized: No token provided." });
-    }
-  }
+const AUTH_MODE = process.env.AUTH_MODE || "strict";
 
-  // Case 2: Token provided but Firebase not initialized
-  if (!firebaseInitialized && AUTH_MODE !== 'optional') {
-    return res.status(500).json({ error: "Server configuration error: Authentication system not initialized." });
+function loadServiceAccount() {
+  const raw = process.env.FIREBASE_SERVICE_ACCOUNT_JSON;
+  if (raw) {
+    const text = raw.trim().startsWith("{") ? raw : Buffer.from(raw, "base64").toString("utf8");
+    return JSON.parse(text);
   }
-
-  // Case 3: Try to verify the token using JWT first, then fallback to Firebase
   try {
-    // First, try to validate as a JWT token
-    try {
-      const decodedToken = jwt.verify(token, JWT_SECRET);
-      req.user = {
-        uid: decodedToken.uid,
-        email: decodedToken.email,
-        emailVerified: decodedToken.email_verified
-      };
-      console.log(`User authenticated via JWT: ${req.user.uid}, Email Verified: ${req.user.emailVerified}`);
-      
-      // Case 3a: Check email verification status (only in strict mode)
-      if (AUTH_MODE === 'strict' && !req.user.emailVerified) {
-        console.warn(`JWT User ${req.user.uid} attempted access with unverified email.`);
-        return res.status(403).json({ 
-          error: "Forbidden: Email not verified.", 
-          message: "يرجى التحقق من بريدك الإلكتروني للوصول إلى هذه الميزة." 
-        });
-      }
-      
-      // JWT token is valid, proceed
-      return next();
-    } catch (jwtError) {
-      // If JWT validation fails, try Firebase token
-      console.log("JWT validation failed, trying Firebase token instead:", jwtError.message);
-      
-      if (!firebaseInitialized) {
-        throw new Error("Firebase not initialized, cannot verify Firebase token");
-      }
-      
-      // Try to verify as a Firebase token
-      const decodedFirebaseToken = await admin.auth().verifyIdToken(token);
-      req.user = {
-        uid: decodedFirebaseToken.uid,
-        email: decodedFirebaseToken.email,
-        emailVerified: decodedFirebaseToken.email_verified
-      };
-      console.log(`User authenticated via Firebase: ${req.user.uid}, Email Verified: ${req.user.emailVerified}`);
-
-      // Check email verification status for Firebase token (only in strict mode)
-      if (AUTH_MODE === 'strict' && !req.user.emailVerified) {
-        console.warn(`Firebase User ${req.user.uid} attempted access with unverified email.`);
-        return res.status(403).json({ 
-          error: "Forbidden: Email not verified.", 
-          message: "يرجى التحقق من بريدك الإلكتروني للوصول إلى هذه الميزة." 
-        });
-      }
-      
-      // Firebase token is valid, proceed
-      return next();
-    }
-  } catch (error) {
-    console.error("Error verifying token:", error);
-
-    // If verification fails, decide based on authMode
-    if (AUTH_MODE === 'optional') {
-      console.warn(`Token verification failed (AUTH_MODE=optional). Proceeding without authentication.`);
-      req.user = null; // Indicate authentication failure but proceed
-      return next();
-    } else {
-      // In strict mode, reject requests with invalid/expired tokens
-      if (error.name === 'TokenExpiredError' || error.code === 'auth/id-token-expired') {
-        return res.status(403).json({ error: "Forbidden: Token has expired." });
-      } else if (error.code === 'auth/argument-error') {
-        return res.status(403).json({ error: "Forbidden: Invalid token format." });
-      }
-      return res.status(403).json({ error: "Forbidden: Invalid or unverifiable token." });
-    }
+    return require("../../firebase-service-account-key.json");
+  } catch {
+    return null;
   }
-};
+}
 
+let firebaseInitialized = false;
+try {
+  const serviceAccount = loadServiceAccount();
+  if (serviceAccount) {
+    if (!admin.apps.length) admin.initializeApp({ credential: admin.credential.cert(serviceAccount) });
+    firebaseInitialized = true;
+  }
+} catch (error) {
+  console.error(`Firebase Admin init failed: ${error.message}`);
+}
+
+if (!firebaseInitialized) {
+  if (AUTH_MODE === "optional") {
+    console.warn("Firebase Admin not configured; AUTH_MODE=optional so /api is open.");
+  } else {
+    // Fail fast: strict mode cannot verify anyone without credentials.
+    throw new Error("AUTH_MODE is strict but Firebase Admin credentials are missing (set FIREBASE_SERVICE_ACCOUNT_JSON).");
+  }
+}
+
+const UNVERIFIED_MESSAGE = "يرجى التحقق من بريدك الإلكتروني للوصول إلى هذه الميزة.";
+
+async function authenticateToken(req, res, next) {
+  const header = req.headers.authorization || "";
+  const token = header.startsWith("Bearer ") ? header.slice(7) : null;
+
+  if (!token) {
+    if (AUTH_MODE === "optional") {
+      req.user = null;
+      return next();
+    }
+    return res.status(401).json({ error: "Unauthorized: No token provided.", code: "AUTH_REQUIRED" });
+  }
+
+  if (!firebaseInitialized) {
+    // Only reachable in optional mode.
+    req.user = null;
+    return next();
+  }
+
+  try {
+    const decoded = await admin.auth().verifyIdToken(token);
+    req.user = { uid: decoded.uid, email: decoded.email, emailVerified: decoded.email_verified };
+  } catch (error) {
+    if (AUTH_MODE === "optional") {
+      req.user = null;
+      return next();
+    }
+    const expired = error && error.code === "auth/id-token-expired";
+    return res.status(403).json({
+      error: expired ? "Forbidden: Token has expired." : "Forbidden: Invalid or unverifiable token.",
+      code: expired ? "AUTH_EXPIRED" : "AUTH_INVALID",
+    });
+  }
+
+  if (AUTH_MODE === "strict" && !req.user.emailVerified) {
+    return res.status(403).json({ error: "Forbidden: Email not verified.", message: UNVERIFIED_MESSAGE, code: "EMAIL_NOT_VERIFIED" });
+  }
+  return next();
+}
+
+authenticateToken.firebaseInitialized = firebaseInitialized;
 module.exports = authenticateToken;

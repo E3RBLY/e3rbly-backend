@@ -1,5 +1,23 @@
-coverage/
+# Dependencies
+node_modules
+
+# Secrets and local env (never commit real values; see .env.example)
+.env
+.env.*
+!.env.example
+*service-account*.json
+*.pem
+*.p12
+
+# Vercel
+.vercel/
+
+# Test / coverage output
 coverage/
 *.html
-/coverage/
-*.html
+
+# Logs and OS files
+*.log
+npm-debug.log*
+.DS_Store
+Thumbs.db

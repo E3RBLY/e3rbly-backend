@@ -4,12 +4,10 @@ const {
   explainGrammarAnalysis,
   analyzeArabicTextExplanation
 } = require("../controllers/arabicAnalysisController");
-const authenticateToken = require("../middleware/authMiddleware");
 
 const router = express.Router();
 
-// Apply authentication middleware to all routes in this module
-router.use(authenticateToken);
+// Auth is applied once in server.js for all of /api.
 
 // Route for analyzing Arabic text
 // POST /api/analysis/analyze
