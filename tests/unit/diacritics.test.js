@@ -45,3 +45,42 @@ test('countMarks and hasDiacritics', () => {
   expect(d.hasDiacritics('ذهب')).toBe(false);
   expect(d.hasDiacritics('ذهبَ')).toBe(true);
 });
+
+describe('transferMarks: model marks onto the USER\'s letters', () => {
+  const { transferMarks, stripDiacritics } = require('../../src/domain/arabic/diacritics');
+
+  test('live bug: model adds a hamza (انا -> أَنَا) and drops the trailing space; user letters kept', () => {
+    const input = 'انا اسمي محمود ';
+    const out = transferMarks(input, 'أَنَا اسْمِي مَحْمُودٌ');
+    expect(out).toBe('اَنَا اسْمِي مَحْمُودٌ ');
+    expect(stripDiacritics(out)).toBe(input); // letters and spaces exactly as typed
+  });
+
+  test.each([
+    ['الى المدرسة', 'إِلَى الْمَدْرَسَةِ', 'اِلَى الْمَدْرَسَةِ'],
+    ['مدرسه', 'مَدْرَسَةٌ', 'مَدْرَسَهٌ'],
+    ['علي', 'عَلَى', 'عَلَي'],
+    ['امن', 'آمَنَ', 'امَنَ'],
+  ])('alef/ya/ta-marbuta spelling variants: %s', (input, suggestion, expected) => {
+    const out = transferMarks(input, suggestion);
+    expect(out).toBe(expected);
+    expect(stripDiacritics(out)).toBe(input);
+  });
+
+  test('extra spaces from the model are ignored', () => {
+    expect(transferMarks('ذهب الولد', 'ذَهَبَ  الْوَلَدُ ')).toBe('ذَهَبَ الْوَلَدُ');
+  });
+
+  test('marks the user typed are kept', () => {
+    expect(transferMarks('ذهبَ الولد', 'ذَهَبُ الْوَلَدُ')).toBe('ذَهَبَ الْوَلَدُ');
+  });
+
+  test.each([
+    ['ذهب الولد', 'ذَهَبَتِ الْبِنْتُ'],
+    ['ذهب الولد', 'ذَهَبَ الْوَلَدُ إِلَى الْبَيْتِ'],
+    ['ذهب الولد', 'ذَهَبَ'],
+    ['كتب', 'قَرَأَ'],
+  ])('real letter changes are still rejected: %s -> %s', (input, suggestion) => {
+    expect(transferMarks(input, suggestion)).toBeNull();
+  });
+});

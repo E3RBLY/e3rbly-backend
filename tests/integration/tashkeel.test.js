@@ -100,6 +100,13 @@ test('AI failure -> 500 with code, no raw message', async () => {
   expect(JSON.stringify(res.body)).not.toContain('secret upstream');
 });
 
+test('FIXED (live 502): model adds a hamza and drops the trailing space -> 200, user letters kept', async () => {
+  ai.generateContent.mockResolvedValue('أَنَا اسْمِي مَحْمُودٌ');
+  const res = await post({ text: 'انا اسمي محمود ' });
+  expect(res.status).toBe(200);
+  expect(res.body.text).toBe('اَنَا اسْمِي مَحْمُودٌ ');
+});
+
 test('AI quota exhausted -> 429 AI_RATE_LIMITED, so the app says "try again shortly"', async () => {
   ai.generateContent.mockRejectedValue(Object.assign(new Error('quota'), { code: 'AI_RATE_LIMITED' }));
   const res = await post({ text: 'ذهب الولد' });
