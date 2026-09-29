@@ -49,3 +49,7 @@ Endpoint coverage: every live route has at least one success test and its valida
 | Integrity | PASS | per-surah + whole-file SHA-256, independent ayah counts (114 / 6,236), tamper test (one changed harakah is detected), missing-ayah test |
 | Mounted in main app | PASS | `tests/integration/quranMount.test.js`: public (no token), legacy routes unchanged |
 | Live Preview smoke | NOT RUN | `scripts/smoke-live.js` now checks the Quran routes; run after the Preview deploy. Watch the function log at start-up: the pack must load (data files are read with `fs` from `modules/quran/data`) |
+
+## Ayah annotations (local, 2026-09-30)
+
+`npx jest`: 18 suites, 437 tests PASS. `npm run validate:annotations` OK (0 packs). Covered: reviewed-only serving, staging opt-in, wujuh kept separate and attributed, every invalid-pack rule (missing/unknown license file, path traversal, enums, ayah refs, empty body, unlabeled wujuh, folder/id mismatch), empty answer for uncovered ayat, kind filter, 400/404 envelope, ETag changes with content. Uses clearly-marked test fixtures only; no real tafsir/i'rab text exists in the repo. Live Preview smoke: NOT RUN.

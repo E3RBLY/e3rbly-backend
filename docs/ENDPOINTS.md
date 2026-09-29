@@ -45,3 +45,12 @@ Read-only, no auth, no AI, no DB. Data: Tanzil Uthmani text (CC BY 3.0, unmodifi
 | 23 | GET | `/v1/quran/ayat/:s/:a` | s 1–114, a ≥1 | `{ayah:{surah, ayah, text, text_ayah, basmala_prefixed}}`; 404 if a > ayah count | none | PASS (local) |
 
 `text` is Tanzil's string, never edited. Tanzil prefixes the basmala to ayah 1 of every surah except 1 and 9; `text_ayah` is the ayah proper (lossless split, `text === basmala + " " + text_ayah`), `basmala_prefixed` says whether it happened.
+
+### Ayah annotations (tafsir / i'rab / simple explanation), same module
+
+Serves only `reviewed` items from packs in `modules/quran/data/annotations` (empty until licensed content exists; `QURAN_INCLUDE_UNREVIEWED=true` for staging). Every item carries its source (name, author, attribution text, license, provenance) and review status. Several i'rab wujuh come back as separate labelled items. No AI at request time.
+
+| # | Method | Path | Input | Output | Tests |
+|---|---|---|---|---|---|
+| 24 | GET | `/v1/quran/annotation-sources` | – | `{sources:[{id, kind, name_ar, attribution_text, license, provenance, coverage:{ayat}}], reviewed_only}` | PASS (local) |
+| 25 | GET | `/v1/quran/ayat/:s/:a/annotations?kind=tafsir\|i3rab\|simple` | s 1–114, a ≥1 | `{source, ayah, available_kinds[], annotations:[{id, kind, source{…}, label, body_ar, review_status}]}`; empty lists when nothing is licensed/reviewed; 400 bad kind/params, 404 ayah out of range | PASS (local) |

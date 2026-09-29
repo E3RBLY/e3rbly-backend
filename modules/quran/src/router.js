@@ -2,6 +2,7 @@ const express = require("express");
 const { z } = require("zod");
 const { ApiError, envelope } = require("./http");
 const { sha256, splitBasmala } = require("./pack");
+const { KINDS, loadAnnotations } = require("./annotations");
 
 const positiveInt = z.coerce.number().int().min(1);
 const surahParam = positiveInt.max(114);
@@ -17,7 +18,7 @@ function parse(schema, value, field = "") {
 }
 
 /** Read-only /v1/quran routes over an already verified pack. */
-function createQuranRouter(pack) {
+function createQuranRouter(pack, annotations = loadAnnotations()) {
   const router = express.Router();
   const { source } = pack;
   const sourceRef = { id: source.id, name_ar: source.name_ar, name_en: source.name_en, url: source.url, license: source.license, license_url: source.license_url };
@@ -26,7 +27,7 @@ function createQuranRouter(pack) {
   // The pack is immutable per deploy: same URL + same pack = same bytes, so a strong ETag is safe.
   router.use((req, res, next) => {
     res.set("Cache-Control", "public, max-age=3600");
-    res.set("ETag", `"${sha256(`${packSha}${req.originalUrl}`).slice(0, 32)}"`);
+    res.set("ETag", `"${sha256(`${packSha}${annotations.version}${req.originalUrl}`).slice(0, 32)}"`);
     next();
   });
 
@@ -74,6 +75,27 @@ function createQuranRouter(pack) {
     const total = pack.surahs[surah - 1].length;
     if (n > total) throw new ApiError(404, "NOT_FOUND", `Surah ${surah} has ${total} ayat.`);
     res.json({ source: sourceRef, ayah: ayah(surah, n) });
+  });
+
+  // Which annotation sources exist and how many ayat each covers (only served, i.e. reviewed, content).
+  router.get("/annotation-sources", (req, res) => {
+    res.json({ sources: annotations.sources(), reviewed_only: !annotations.includeUnreviewed });
+  });
+
+  // Tafsir / i'rab / simple explanation for one ayah. Empty lists are a normal answer:
+  // no content is invented when no licensed, reviewed source covers the ayah.
+  router.get("/ayat/:s/:a/annotations", (req, res) => {
+    const surah = parse(surahParam, req.params.s, "s");
+    const n = parse(positiveInt, req.params.a, "a");
+    const { kind } = parse(z.object({ kind: z.enum(KINDS).optional() }).strict(), req.query);
+    const total = pack.surahs[surah - 1].length;
+    if (n > total) throw new ApiError(404, "NOT_FOUND", `Surah ${surah} has ${total} ayat.`);
+    res.json({
+      source: sourceRef,
+      ayah: ayah(surah, n),
+      available_kinds: annotations.availableKinds(surah, n),
+      annotations: annotations.forAyah(surah, n, kind),
+    });
   });
 
   router.use((req, res) => {

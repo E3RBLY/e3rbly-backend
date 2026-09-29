@@ -12,7 +12,8 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test": "jest",
-    "test:watch": "jest --watch"
+    "test:watch": "jest --watch",
+    "validate:annotations": "node modules/quran/scripts/validate-annotations.js"
   },
   "keywords": [
     "arabic",

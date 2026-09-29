@@ -1,0 +1,11 @@
+{
+  "id": "test-tafsir",
+  "kind": "tafsir",
+  "name_ar": "تفسير تجريبي (بيانات اختبار فقط)",
+  "author_ar": "مؤلف تجريبي",
+  "edition": "طبعة تجريبية",
+  "attribution_text": "بيانات اختبار: ليست تفسيرًا حقيقيًا",
+  "license": "test fixture",
+  "license_file": "test-permission.md",
+  "provenance": "imported"
+}
