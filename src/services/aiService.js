@@ -247,8 +247,19 @@ function parseJson(text) {
   }
 }
 
-async function generateContent(prompt) {
-  return withFallback((call) => call(prompt));
+/**
+ * @param {string} prompt
+ * @param {{accept?: (text: string) => string|null}} [options]  accept() returns the text to use,
+ *   or null to reject the reply as malformed, which lets the next provider try.
+ */
+async function generateContent(prompt, { accept } = {}) {
+  return withFallback(async (call) => {
+    const text = await call(prompt);
+    if (!accept) return text;
+    const accepted = accept(text);
+    if (accepted == null) throw new AiServiceError('AI_BAD_RESPONSE', 'AI reply rejected by format check');
+    return accepted;
+  });
 }
 
 async function generateArabicExplanation(prompt) {
