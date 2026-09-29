@@ -11,3 +11,4 @@
 | 2026-09-29 | In-memory per-IP rate limiter | express-rate-limit; Upstash Redis | No new dependency (npm blocked) and no new vendor/cost (Tier C). Per-instance on Vercel; upgrade to a shared store if abuse is observed. |
 | 2026-09-29 | AI failures keep HTTP 500 (not 502/503/504) | Precise gateway codes | Released app maps 500 to a friendly message; other 5xx show a raw code (M6). Revisit after the app update ships. |
 | 2026-09-29 | Removed /auth/* and JWT (Q5 default) | Keep and fix | Unused by the app; they carried C4/H5. Firebase ID tokens are the only auth. |
+| 2026-09-29 | Tashkeel v1 = Gemini with a hard letters-unchanged guard, user marks preserved, LRU cache | Open-source diacritizer models (e.g. hosted neural models); rule + lexicon | No new hosting/cost; ships now. Quality is measured with a DER benchmark (gold set) before promoting it in the app; a dedicated model stays an option if DER is poor. |

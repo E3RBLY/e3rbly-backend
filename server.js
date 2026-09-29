@@ -9,6 +9,7 @@ const arabicAnalysisRoutes = require("./src/routes/arabicAnalysisRoutes");
 const exercisesRoutes = require("./src/routes/exercisesRoutes");
 const quizRoutes = require("./src/routes/quizRoutes");
 const grammarConceptsRoutes = require("./src/routes/grammarConceptsRoutes");
+const tashkeelRoutes = require("./src/routes/tashkeelRoutes");
 
 const app = express();
 
@@ -34,6 +35,7 @@ app.get("/", (req, res) => {
       { path: "/api/grammar/related", method: "POST", description: "Related grammar concepts" },
       { path: "/api/grammar/concept-types", method: "GET", description: "Grammar concept types" },
       { path: "/api/grammar/concept-values/:conceptType", method: "GET", description: "Values of a concept type" },
+      { path: "/api/tashkeel", method: "POST", description: "Auto tashkeel (adds harakat; never changes letters)" },
     ],
   });
 });
@@ -70,6 +72,7 @@ app.use("/api/analysis", arabicAnalysisRoutes);
 app.use("/api/exercises", exercisesRoutes);
 app.use("/api/quiz", quizRoutes);
 app.use("/api/grammar", grammarConceptsRoutes);
+app.use("/api/tashkeel", tashkeelRoutes);
 
 // --- Errors ---
 app.use((req, res) => {

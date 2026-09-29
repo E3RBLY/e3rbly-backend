@@ -12,6 +12,7 @@ function fieldLimits() {
   const text = intFromEnv("MAX_TEXT_CHARS", 1000);
   return {
     arabicText: text,
+    text,
     exerciseText: text,
     userAnswer: text,
     correctAnswer: text,
