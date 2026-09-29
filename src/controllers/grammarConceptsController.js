@@ -1,4 +1,4 @@
-const { errorCode } = require("../utils/errors");
+const { errorCode, errorStatus } = require("../utils/errors");
 
 const aiService = require("../services/aiService");
 const { 
@@ -137,7 +137,7 @@ ${GrammarConceptTypeEnum.options.join('\n- ')}
   } catch (error) {
     console.error("Error in getGrammarExplanation controller:", error);
     res
-      .status(500)
+      .status(errorStatus(error))
       .json({ 
         error: "فشل في الحصول على شرح المفهوم النحوي", 
         message: "Failed to get grammar concept explanation.", code: errorCode(error) });
@@ -262,7 +262,7 @@ ${GrammarConceptTypeEnum.options.join('\n- ')}
   } catch (error) {
     console.error("Error in getRelatedConcepts controller:", error);
     res
-      .status(500)
+      .status(errorStatus(error))
       .json({ 
         error: "فشل في الحصول على المفاهيم النحوية ذات الصلة", 
         message: "Failed to get related grammar concepts.", code: errorCode(error) });
@@ -283,7 +283,7 @@ const getConceptTypes = async (req, res) => {
   } catch (error) {
     console.error("Error in getConceptTypes controller:", error);
     res
-      .status(500)
+      .status(errorStatus(error))
       .json({ 
         error: "فشل في الحصول على أنواع المفاهيم النحوية", 
         message: "Failed to get grammar concept types.", code: errorCode(error) });
@@ -324,7 +324,7 @@ const getConceptValues = async (req, res) => {
   } catch (error) {
     console.error("Error in getConceptValues controller:", error);
     res
-      .status(500)
+      .status(errorStatus(error))
       .json({ 
         error: "فشل في الحصول على قيم المفهوم النحوي", 
         message: "Failed to get grammar concept values.", code: errorCode(error) });

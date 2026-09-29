@@ -11,4 +11,12 @@ function errorCode(err) {
   return err && typeof err.code === 'string' && err.code.startsWith('AI_') ? err.code : 'INTERNAL_ERROR';
 }
 
-module.exports = { errorCode };
+/**
+ * HTTP status for an unexpected error: provider quota/rate limits are 429 so clients can
+ * show "try again shortly"; everything else stays 500 (the existing contract).
+ */
+function errorStatus(err) {
+  return errorCode(err) === 'AI_RATE_LIMITED' ? 429 : 500;
+}
+
+module.exports = { errorCode, errorStatus };
