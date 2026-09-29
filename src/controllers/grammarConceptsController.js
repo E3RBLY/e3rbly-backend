@@ -125,7 +125,6 @@ ${GrammarConceptTypeEnum.options.join('\n- ')}
         "Zod Validation Error (getGrammarExplanation):",
         validationResult.error.errors
       );
-      console.error("Raw AI Response:", grammarConceptJson);
       return res.status(500).json({
         error: "هناك مشكلة في تنسيق الاستجابة",
         message: "AI service returned data in an unexpected format.", code: "AI_BAD_RESPONSE"
@@ -251,7 +250,6 @@ ${GrammarConceptTypeEnum.options.join('\n- ')}
         "Zod Validation Error (getRelatedConcepts):",
         validationResult.error.errors
       );
-      console.error("Raw AI Response:", relatedConceptsJson);
       return res.status(500).json({
         error: "هناك مشكلة في تنسيق الاستجابة",
         message: "AI service returned data in an unexpected format.", code: "AI_BAD_RESPONSE"

@@ -147,6 +147,21 @@ describe('POST /api/analysis/analyze', () => {
     expect(res.body.details).toBeUndefined();
   });
 
+  test('null root/pattern/role/features from the model are normalized (live bug 2026-09-29)', async () => {
+    aiService.generateStructuredContent.mockResolvedValue({
+      tokens: [
+        { surface: 'إلى', diacritized: 'إِلَى', root: null, pattern: null, pos: 'particle', features: null },
+        { surface: 'المدرسة', diacritized: 'الْمَدْرَسَةِ', root: 'د ر س', pattern: 'مَفْعَلَة', pos: 'noun', features: { case: 'genitive' } },
+      ],
+      syntaxTree: { type: 'phrase', role: null, tokenIndices: [0, 1], children: null },
+    });
+    const res = await request(app).post('/api/analysis/analyze').send({ arabicText: 'إلى المدرسة' });
+    expect(res.status).toBe(200);
+    expect(res.body.tokens[0]).toMatchObject({ root: '', pattern: '', features: {} });
+    expect(res.body.tokens[1].diacritized).toBe('الْمَدْرَسَةِ');
+    expect(res.body.syntaxTree.role).toBe('');
+  });
+
   test('FIXED (H3): provider error message is not sent to the client', async () => {
     aiService.generateStructuredContent.mockRejectedValue(new Error('upstream secret detail'));
     const res = await request(app).post('/api/analysis/analyze').send({ arabicText: 'ذهب الولد' });

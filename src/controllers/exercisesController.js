@@ -87,7 +87,6 @@ Return the result as a JSON object with a single key "exercises" which is an arr
         "Zod Validation Error (generateGrammarExercises):",
         validationResult.error.errors
       );
-      console.error("Raw AI Response:", resultJson);
       return res.status(500).json({
         error: "AI service returned exercises in an unexpected format.", code: "AI_BAD_RESPONSE"
       });
@@ -171,7 +170,6 @@ Evaluate the user's answer: ${userAnswer}`;
             "Zod Validation Error (checkExerciseAnswer):",
             validationResult.error.errors
           );
-        console.error("Raw AI Response:", feedbackResultJson);
         return res.status(500).json({
             error: "AI service returned feedback in an unexpected format.", code: "AI_BAD_RESPONSE"
           });

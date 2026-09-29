@@ -50,7 +50,6 @@ Arabic Text: ${arabicText}`;
         "Zod Validation Error (analyzeArabicText):",
         validationResult.error.errors // Log Zod errors
       );
-      console.error("Raw AI Response:", analysisResultJson); // Log raw response for debugging
       return res.status(500).json({
         error: "AI service returned data in an unexpected format.", code: "AI_BAD_RESPONSE"
       });
@@ -108,7 +107,6 @@ Explanation (in Arabic):`;
             "Zod Validation Error (explainGrammarAnalysis):",
             validationResult.error.errors
           );
-        console.error("Raw AI Response (explanation text):", explanationText);
         return res.status(500).json({
             error: "AI service returned explanation in an unexpected format.", code: "AI_BAD_RESPONSE"
           });

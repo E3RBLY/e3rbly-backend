@@ -75,7 +75,6 @@ Return the result as a JSON object with a single key "quiz" which is an array of
         "Zod Validation Error (generateQuiz):",
         validationResult.error.errors
       );
-      console.error("Raw AI Response:", resultJson);
       return res.status(500).json({
         error: "AI service returned quiz data in an unexpected format.", code: "AI_BAD_RESPONSE"
       });

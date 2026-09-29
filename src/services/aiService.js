@@ -15,7 +15,7 @@
  *   GEMINI_MODEL          default "gemini-3.6-flash" (Google's listed replacement for 2.0 Flash)
  *   AI_TIMEOUT_MS         per-attempt timeout, default 20000
  *   AI_MAX_RETRIES        retries on retryable errors, default 1
- *   AI_MAX_OUTPUT_TOKENS  default 4096
+ *   AI_MAX_OUTPUT_TOKENS  default 8192 (thinking tokens count against it)
  */
 
 const API_BASE = 'https://generativelanguage.googleapis.com/v1beta';
@@ -48,7 +48,7 @@ function getConfig() {
     model: process.env.GEMINI_MODEL || DEFAULT_MODEL,
     timeoutMs: intFromEnv('AI_TIMEOUT_MS', 20000),
     maxRetries: intFromEnv('AI_MAX_RETRIES', 1),
-    maxOutputTokens: intFromEnv('AI_MAX_OUTPUT_TOKENS', 4096),
+    maxOutputTokens: intFromEnv('AI_MAX_OUTPUT_TOKENS', 8192),
   };
 }
 
@@ -116,6 +116,10 @@ async function callGemini(prompt, { json = false } = {}) {
   const text = (candidate?.content?.parts || [])
     .map((p) => (typeof p.text === 'string' ? p.text : ''))
     .join('');
+  if (candidate?.finishReason === 'MAX_TOKENS') {
+    // Output was cut off (thinking tokens share this budget); partial JSON can't be parsed.
+    throw new AiServiceError('AI_TRUNCATED', 'AI response was cut off at the output token limit');
+  }
   if (!text) {
     const reason = candidate?.finishReason || 'NO_CANDIDATE';
     throw new AiServiceError('AI_EMPTY', `AI provider returned no text (${reason})`, { retryable: reason === 'NO_CANDIDATE' });
