@@ -18,7 +18,8 @@
  *   AI_MAX_OUTPUT_TOKENS  default 8192 (thinking tokens count against it)
  *   GROQ_API_KEY          optional; enables the Groq fallback
  *   GROQ_MODEL            default "openai/gpt-oss-120b"
- *   AI_FALLBACK_COOLDOWN_MS  how long a provider that hit quota/auth/outage is skipped, default 60000
+ *   AI_FALLBACK_COOLDOWN_MS  how long a provider that hit quota/auth/outage is skipped, default 0
+ *                         (0 = Gemini is tried first on every request; Groq only answers when Gemini fails)
  *   AI_TOTAL_BUDGET_MS    whole-request budget across providers and retries, default 45000
  *                         (the app gives up at 60s; each attempt gets at most what is left)
  *
@@ -64,7 +65,7 @@ function getConfig() {
     maxOutputTokens: intFromEnv('AI_MAX_OUTPUT_TOKENS', 8192),
     groqApiKey: process.env.GROQ_API_KEY,
     groqModel: process.env.GROQ_MODEL || DEFAULT_GROQ_MODEL,
-    cooldownMs: intFromEnv('AI_FALLBACK_COOLDOWN_MS', 60000),
+    cooldownMs: intFromEnv('AI_FALLBACK_COOLDOWN_MS', 0),
     totalBudgetMs: intFromEnv('AI_TOTAL_BUDGET_MS', 45000),
   };
 }

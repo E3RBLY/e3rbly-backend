@@ -54,7 +54,18 @@ test('Gemini rate-limited: switches to Groq at once (no Gemini retry) and return
   expect(body.response_format).toBeUndefined();
 });
 
-test('after a Gemini quota error, Gemini is skipped during the cooldown', async () => {
+test('default: Gemini is tried first on EVERY request, even right after a quota error', async () => {
+  fetch
+    .mockResolvedValueOnce(statusResponse(429))
+    .mockResolvedValueOnce(groqOk('a'))
+    .mockResolvedValueOnce(geminiOk('b'));
+  await expect(ai.generateContent('p1')).resolves.toBe('a');
+  await expect(ai.generateContent('p2')).resolves.toBe('b');
+  expect(urls()).toEqual([GEMINI_URL, GROQ_URL, GEMINI_URL]);
+});
+
+test('with AI_FALLBACK_COOLDOWN_MS set, a failed Gemini is skipped during the cooldown', async () => {
+  process.env.AI_FALLBACK_COOLDOWN_MS = '60000';
   fetch
     .mockResolvedValueOnce(statusResponse(429))
     .mockResolvedValueOnce(groqOk('a'))
