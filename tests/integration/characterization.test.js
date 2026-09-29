@@ -343,6 +343,22 @@ describe('POST /api/quiz/generate', () => {
   });
 });
 
+describe('AI provider quota exhausted', () => {
+  const rateLimited = () => Object.assign(new Error('quota'), { code: 'AI_RATE_LIMITED' });
+  const cases = [
+    ['/api/analysis/analyze', { arabicText: 'ذهب الولد إلى المدرسة' }, 'generateStructuredContent'],
+    ['/api/analysis/analyze/text', { arabicText: 'ذهب الولد إلى المدرسة' }, 'generateContent'],
+    ['/api/quiz/generate', { topic: 'الفاعل', difficulty: 'beginner', questionCount: 1 }, 'generateStructuredContent'],
+  ];
+  test.each(cases)('FIXED: %s -> 429 AI_RATE_LIMITED (was 500), so the app shows "try again shortly"', async (path, body, fn) => {
+    aiService[fn].mockRejectedValue(rateLimited());
+    const res = await request(app).post(path).send(body);
+    expect(res.status).toBe(429);
+    expect(res.body.code).toBe('AI_RATE_LIMITED');
+    expect(typeof res.body.error).toBe('string');
+  });
+});
+
 describe('POST /api/quiz/evaluate (no AI)', () => {
   test('correct answer -> score 100', async () => {
     const res = await request(app)

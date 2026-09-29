@@ -1,4 +1,4 @@
-const { errorCode } = require("../utils/errors");
+const { errorCode, errorStatus } = require("../utils/errors");
 const aiService = require("../services/aiService");
 const { isValidArabic } = require("../utils/arabicValidator"); // Assuming validator is in utils
 const {
@@ -61,7 +61,7 @@ Arabic Text: ${arabicText}`;
   } catch (error) {
     console.error("Error in analyzeArabicText controller:", error);
     res
-      .status(500)
+      .status(errorStatus(error))
       .json({ error: "Failed to analyze Arabic text.", code: errorCode(error) });
   }
 };
@@ -118,7 +118,7 @@ Explanation (in Arabic):`;
   } catch (error) {
     console.error("Error in explainGrammarAnalysis controller:", error);
     res
-      .status(500)
+      .status(errorStatus(error))
       .json({ error: "Failed to explain grammar analysis.", code: errorCode(error) });
   }
 };
@@ -180,7 +180,7 @@ const analyzeArabicTextExplanation = async (req, res) => {
 
   } catch (error) {
     console.error("خطأ في إعراب النص:", error);
-    res.status(500).json({ 
+    res.status(errorStatus(error)).json({ 
       error: "فشل في التحليل النحوي", code: errorCode(error) });
   }
 };
