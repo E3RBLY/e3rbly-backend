@@ -68,7 +68,20 @@ async function diacritize(text, { preserveExisting = true } = {}) {
   const hit = cacheGet(key);
   if (hit) return { ...hit, cached: true };
 
-  const suggestion = cleanModelOutput(await ai.generateContent(buildPrompt(input)), input);
+  // accept() lets the AI service try the other provider when one changes the letters.
+  const accept = (raw) => {
+    const cleaned = cleanModelOutput(raw, input);
+    return d.sameBaseText(input, cleaned) ? cleaned : null;
+  };
+  let suggestion;
+  try {
+    suggestion = cleanModelOutput(await ai.generateContent(buildPrompt(input), { accept }), input);
+  } catch (error) {
+    if (error.code === 'AI_BAD_RESPONSE') {
+      throw new TashkeelError('TASHKEEL_LETTERS_CHANGED', 'Every AI provider changed the base letters');
+    }
+    throw error;
+  }
   if (!d.sameBaseText(input, suggestion)) {
     // Never return text whose letters differ from what the user typed.
     throw new TashkeelError('TASHKEEL_LETTERS_CHANGED', 'AI output changed the base letters');

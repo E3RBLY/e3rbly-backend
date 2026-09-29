@@ -1,6 +1,6 @@
 const { diacritize } = require('../services/tashkeelService');
 const { isValidArabic } = require('../utils/arabicValidator');
-const { errorCode } = require('../utils/errors');
+const { errorCode, errorStatus } = require('../utils/errors');
 
 // POST /api/tashkeel  { text: string, preserveExisting?: boolean }
 async function tashkeel(req, res) {
@@ -20,7 +20,7 @@ async function tashkeel(req, res) {
       return res.status(502).json({ error: 'تعذر تشكيل النص بدقة. يرجى المحاولة مرة أخرى.', code: error.code });
     }
     console.error(`tashkeel failed: ${errorCode(error)}`);
-    return res.status(500).json({ error: 'فشل في تشكيل النص. يرجى المحاولة لاحقًا.', code: errorCode(error) });
+    return res.status(errorStatus(error)).json({ error: 'فشل في تشكيل النص. يرجى المحاولة لاحقًا.', code: errorCode(error) });
   }
 }
 

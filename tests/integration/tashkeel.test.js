@@ -100,6 +100,28 @@ test('AI failure -> 500 with code, no raw message', async () => {
   expect(JSON.stringify(res.body)).not.toContain('secret upstream');
 });
 
+test('AI quota exhausted -> 429 AI_RATE_LIMITED, so the app says "try again shortly"', async () => {
+  ai.generateContent.mockRejectedValue(Object.assign(new Error('quota'), { code: 'AI_RATE_LIMITED' }));
+  const res = await post({ text: 'ذهب الولد' });
+  expect(res.status).toBe(429);
+  expect(res.body.code).toBe('AI_RATE_LIMITED');
+});
+
+test('letter check is handed to the AI service, so a provider that changes letters is replaced by the other', async () => {
+  ai.generateContent.mockResolvedValue('ذَهَبَ الْوَلَدُ');
+  await post({ text: 'ذهب الولد' });
+  const { accept } = ai.generateContent.mock.calls[0][1];
+  expect(accept('ذَهَبَتِ الْبِنْتُ')).toBeNull();
+  expect(accept('```\nذَهَبَ الْوَلَدُ\n```')).toBe('ذَهَبَ الْوَلَدُ');
+});
+
+test('every provider changed the letters (AI_BAD_RESPONSE from the service) -> 502 TASHKEEL_LETTERS_CHANGED', async () => {
+  ai.generateContent.mockRejectedValue(Object.assign(new Error('rejected'), { code: 'AI_BAD_RESPONSE' }));
+  const res = await post({ text: 'ذهب الولد' });
+  expect(res.status).toBe(502);
+  expect(res.body.code).toBe('TASHKEEL_LETTERS_CHANGED');
+});
+
 describe.each(corpus.map((s) => [s.id, s.text]))('corpus %s', (_id, text) => {
   test('a letter-preserving suggestion is accepted; base text is unchanged', async () => {
     // Simulate a model that adds a fatha after every Arabic letter that has no mark yet.
