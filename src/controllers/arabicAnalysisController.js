@@ -1,6 +1,7 @@
 const { errorCode, errorStatus } = require("../utils/errors");
 const aiService = require("../services/aiService");
-const { isValidArabic } = require("../utils/arabicValidator"); // Assuming validator is in utils
+const { isValidArabic } = require("../utils/arabicValidator");
+const { toPlainExplanation } = require("../utils/explanationFormat"); // Assuming validator is in utils
 const {
   AnalyzeArabicTextOutputSchema,
   ExplainGrammarAnalysisOutputSchema,
@@ -141,6 +142,8 @@ const analyzeArabicTextExplanation = async (req, res) => {
 4. تحليل التركيب النحوي للجملة
 5. ملاحظات إضافية إن لزم
 
+اكتب نصًا عاديًا فقط، بدون تنسيق Markdown (لا تستخدم النجوم ** ولا علامة #).
+
 التنسيق المطلوب:
 الجملة الأصلية: [هنا الجملة]
 الإعراب:
@@ -169,11 +172,11 @@ const analyzeArabicTextExplanation = async (req, res) => {
 `;
 
   try {
-    const explanation = await aiService.generateContent(prompt);
-    
-    // Simple validation
-    if (!explanation.includes("الجملة الأصلية:") || !explanation.includes("الإعراب:")) {
-      throw new Error("تنسيق الاستجابة غير صحيح");
+    // accept() lets the AI service switch provider when a reply is malformed.
+    const raw = await aiService.generateContent(prompt, { accept: toPlainExplanation });
+    const explanation = toPlainExplanation(raw);
+    if (!explanation) {
+      throw Object.assign(new Error("AI explanation is missing the required markers"), { code: "AI_BAD_RESPONSE" });
     }
 
     res.json({ explanation });

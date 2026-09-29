@@ -197,11 +197,26 @@ describe('POST /api/analysis/analyze/text (main app flow)', () => {
     expect(res.body.error).toBe('نص عربي غير صالح');
   });
 
-  test('AI reply missing required markers -> 500', async () => {
+  test('AI reply missing required markers -> 500 AI_BAD_RESPONSE (was INTERNAL_ERROR)', async () => {
     aiService.generateContent.mockResolvedValue('some unrelated text');
     const res = await request(app).post('/api/analysis/analyze/text').send({ arabicText: 'ذهب الولد' });
     expect(res.status).toBe(500);
-    expect(res.body.error).toBe('فشل في التحليل النحوي');
+    expect(res.body).toEqual({ error: 'فشل في التحليل النحوي', code: 'AI_BAD_RESPONSE' });
+  });
+
+  test('FIXED (live 500 via Groq): markdown-formatted reply -> 200 with plain text', async () => {
+    aiService.generateContent.mockResolvedValue('**الجملة الأصلية**: ذهب الولد\n### الإعراب:\n* **ذهب**: فعل ماض');
+    const res = await request(app).post('/api/analysis/analyze/text').send({ arabicText: 'ذهب الولد' });
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual({ explanation: 'الجملة الأصلية: ذهب الولد\nالإعراب:\n- ذهب: فعل ماض' });
+  });
+
+  test('format check is handed to the AI service, so a malformed reply can switch provider', async () => {
+    aiService.generateContent.mockResolvedValue(goodExplanation);
+    await request(app).post('/api/analysis/analyze/text').send({ arabicText: 'ذهب الولد' });
+    const opts = aiService.generateContent.mock.calls[0][1];
+    expect(typeof opts.accept).toBe('function');
+    expect(opts.accept('some unrelated text')).toBeNull();
   });
 
   describe.each(corpus.map((s) => [s.id, s.kind, s.text]))('corpus %s (%s)', (id, kind, text) => {

@@ -75,6 +75,18 @@ test('cooldown expires: Gemini is tried first again', async () => {
   expect(urls()).toEqual([GEMINI_URL, GROQ_URL, GEMINI_URL]);
 });
 
+test('accept() rejects Gemini reply format: Groq gets a turn, accepted text is returned', async () => {
+  fetch.mockResolvedValueOnce(geminiOk('bad')).mockResolvedValueOnce(groqOk('good'));
+  const accept = (t) => (t === 'good' ? 'GOOD' : null);
+  await expect(ai.generateContent('p', { accept })).resolves.toBe('GOOD');
+  expect(urls()).toEqual([GEMINI_URL, GROQ_URL]);
+});
+
+test('accept() rejects every provider -> AI_BAD_RESPONSE', async () => {
+  fetch.mockResolvedValueOnce(geminiOk('bad')).mockResolvedValueOnce(groqOk('bad'));
+  await expect(ai.generateContent('p', { accept: () => null })).rejects.toMatchObject({ code: 'AI_BAD_RESPONSE' });
+});
+
 test('structured: Groq uses JSON mode and the result is parsed', async () => {
   fetch.mockResolvedValueOnce(statusResponse(503)).mockResolvedValueOnce(groqOk('{"quiz":[]}'));
   await expect(ai.generateStructuredContent('p')).resolves.toEqual({ quiz: [] });
