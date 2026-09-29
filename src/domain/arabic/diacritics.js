@@ -59,4 +59,48 @@ function mergePreservingExisting(original, suggested) {
   return nfc(o.map((c, i) => c.base + (c.marks || (s[i] ? s[i].marks : ''))).join(''));
 }
 
-module.exports = { stripDiacritics, countMarks, hasDiacritics, sameBaseText, mergePreservingExisting, isMark };
+/**
+ * Spelling variants a model "corrects" while diacritizing (انا -> أنا, الى -> إلى,
+ * مدرسه -> مدرسة, علي -> على). They count as the same letter when aligning, but the
+ * USER's letter is always the one kept.
+ */
+const EQUIVALENT = [new Set(['ا', 'أ', 'إ', 'آ', 'ٱ']), new Set(['ي', 'ى']), new Set(['ه', 'ة'])];
+const sameLetter = (a, b) => a === b || EQUIVALENT.some((g) => g.has(a) && g.has(b));
+const isSpace = (ch) => /\s/.test(ch);
+
+/**
+ * Copy the suggestion's marks onto the original's letters, cluster by cluster.
+ * Letters (and spaces) always come from the original, so
+ * stripDiacritics(result) === stripDiacritics(original) by construction.
+ * Marks the user already typed win (unless keepExisting is false). Returns null when the texts don't align
+ * (a real letter was added, dropped or changed).
+ */
+function transferMarks(original, suggested, { keepExisting = true } = {}) {
+  const o = clusters(original);
+  const s = clusters(suggested);
+  let j = 0;
+  let out = '';
+  for (const c of o) {
+    while (j < s.length && isSpace(s[j].base) && !isSpace(c.base)) j++;
+    if (isSpace(c.base)) {
+      out += c.base + c.marks;
+      while (j < s.length && isSpace(s[j].base)) j++;
+      continue;
+    }
+    if (j >= s.length || !sameLetter(c.base, s[j].base)) return null;
+    out += c.base + (keepExisting ? c.marks || s[j].marks : s[j].marks);
+    j++;
+  }
+  while (j < s.length && isSpace(s[j].base)) j++;
+  return j === s.length ? nfc(out) : null;
+}
+
+module.exports = {
+  stripDiacritics,
+  countMarks,
+  hasDiacritics,
+  sameBaseText,
+  mergePreservingExisting,
+  transferMarks,
+  isMark,
+};
