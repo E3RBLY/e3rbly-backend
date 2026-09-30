@@ -840,7 +840,7 @@ Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>"
 - Consumes: `DailyRepository`, `DailyStore`, `StreakEngine`, `buildShareText`, `treeStage`.
 - Produces:
   `sealed class DailyState`: `DailyLoading`, `DailyFailure(String message)`, `DailyReady({required DailyPuzzle puzzle, required List<int?> answers, required StreakState streak, required int shownStreak})`.
-  `DailyReady` getters: `bool get completed` (all three answered), `List<bool> get results` (only meaningful when answered; unanswered = false), `int? get nextTarget` (first unanswered index or null), `String get shareText`, `int get treeStage`.
+  `DailyReady` getters: `bool get completed` (all three answered), `List<bool> get results` (only meaningful when answered; unanswered = false), `int? get nextTarget` (first unanswered index or null), `String get shareText`, `int get treeStageIndex`.
   `class DailyCubit extends Cubit<DailyState> { DailyCubit(DailyRepository, DailyStore, {StreakEngine engine = const StreakEngine(), DateTime Function()? now}); Future<void> load(); Future<void> answer(int target, int option); }`
   `answer` ignores: a non-Ready state, an already answered target, out-of-range indices. It persists the answers after every tap; when the third answer lands it applies `StreakEngine.complete(store.streak(), puzzle.date)`, saves the streak, and emits Ready with the new streak.
 
@@ -1020,30 +1020,22 @@ class DailyReady extends DailyState {
 
   List<bool> get results => [for (var i = 0; i < puzzle.targets.length; i++) answers[i] == puzzle.targets[i].correctIndex];
 
-  int get treeStage => _stage(completed ? streak.current : shownStreak);
+  int get treeStageIndex => treeStage(completed ? streak.current : shownStreak);
 
   String get shareText => buildShareText(dayNumber: puzzle.dayNumber, results: results, streak: streak.current);
-
-  static int _stage(int streak) => treeStageOf(streak);
 
   @override
   List<Object?> get props => [puzzle, answers, streak, shownStreak];
 }
 ```
 
-Use the pure function name from Task 2 directly: replace `_stage`/`treeStageOf` by a call to `treeStage(...)`; because the getter is also named `treeStage`, name the getter `treeStageIndex` instead:
-
-```dart
-  int get treeStageIndex => treeStage(completed ? streak.current : shownStreak);
-```
-(and delete `_stage`). All later tasks use `treeStageIndex`.
+All later tasks use `treeStageIndex` (it calls the pure function `treeStage(int)` from Task 2).
 
 `daily_cubit.dart`:
 
 ```dart
 import 'package:e3rbly/features/daily/data/daily_repository.dart';
 import 'package:e3rbly/features/daily/data/daily_store.dart';
-import 'package:e3rbly/features/daily/domain/local_day.dart';
 import 'package:e3rbly/features/daily/domain/streak/streak_engine.dart';
 import 'package:e3rbly/features/daily/presentation/cubit/daily_state.dart';
 import 'package:e3rbly/utils/handlers/api_error_handler.dart';
@@ -1051,15 +1043,11 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class DailyCubit extends Cubit<DailyState> {
-  DailyCubit(this._repository, this._store, {StreakEngine engine = const StreakEngine(), DateTime Function()? now})
-    : _engine = engine,
-      _now = now ?? DateTime.now,
-      super(const DailyLoading());
+  DailyCubit(this._repository, this._store, {StreakEngine engine = const StreakEngine()}) : _engine = engine, super(const DailyLoading());
 
   final DailyRepository _repository;
   final DailyStore _store;
   final StreakEngine _engine;
-  final DateTime Function() _now;
 
   Future<void> load() async {
     emit(const DailyLoading());
@@ -1093,7 +1081,7 @@ class DailyCubit extends Cubit<DailyState> {
 }
 ```
 
-`_now` and `localDayString` are unused here; remove those two (`now` parameter, `_now` field, `local_day.dart` import) to keep the analyzer clean. Streak days come from `puzzle.date`.
+Streak days come from `puzzle.date`, so the cubit takes no clock.
 
 - [ ] **Step 4: Run to verify pass**
 
