@@ -126,3 +126,42 @@ describe("storing drafts", () => {
     for (const s of DRAFT_SOURCES) expect(fs.existsSync(path.join(__dirname, "..", "data", "annotations", s.id, "source.json"))).toBe(true);
   });
 });
+
+describe("restoreHamza (repairs the model's dropped hamza without touching anything else)", () => {
+  const { restoreHamza } = require("../src/annotationGenerator");
+  const ayah = "وَرَأَيْتَ ٱلنَّاسَ يَدْخُلُونَ فِى دِينِ ٱللَّهِ أَفْوَاجًا";
+
+  test("words quoted from the ayah get the ayah's own spelling (with or without the attached و)", () => {
+    expect(restoreHamza("«رايت» و«ورايت» و«افواجا» و«الناس»", ayah)).toBe("«رأيت» و«ورأيت» و«أفواجا» و«الناس»");
+  });
+
+  test("a quoted phrase is repaired word by word; unknown words are left as written", () => {
+    expect(restoreHamza("«دين الله» و«كلمة اخرى»", ayah)).toBe("«دين الله» و«كلمة اخرى»");
+  });
+
+  test("common grammar terms get their hamza back", () => {
+    expect(restoreHamza("مضاف اليه، وعلامة الاعراب، على اخره، لانه من الافعال الخمسة، تقديره انت", "")).toBe(
+      "مضاف إليه، وعلامة الإعراب، على آخره، لأنه من الأفعال الخمسة، تقديره أنت",
+    );
+  });
+
+  test("whole words only: it never edits inside a longer word", () => {
+    const safe = "رجالا وظلالا الا ان ولاكن اخرون واليهم";
+    expect(restoreHamza(safe, ayah)).toBe(safe);
+  });
+
+  test("idempotent: repairing twice equals repairing once", () => {
+    const once = restoreHamza("«رايت» على اخره مضاف اليه", ayah);
+    expect(restoreHamza(once, ayah)).toBe(once);
+  });
+
+  test("storeGenerated applies it: what is written to disk has the hamza", () => {
+    const { dir } = tempDirs();
+    ensureSources({ dir });
+    storeGenerated(110, 2, { i3rab: [{ label: "", body: "«رايت» فعل ماض مبني على السكون، والجملة معطوفة على ما قبلها لا محل لها من الاعراب وعلامة اخره" }] }, { dir, only: "i3rab", ayahText: ayah, wordCount: 1 });
+    const stored = JSON.parse(fs.readFileSync(path.join(dir, "ai-irab", "surah-110.json"), "utf8"))["110:2"][0].body_ar;
+    expect(stored).toContain("«رأيت»");
+    expect(stored).toContain("الإعراب");
+    expect(stored).toContain("آخره");
+  });
+});

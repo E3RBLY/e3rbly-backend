@@ -1,20 +1,27 @@
 #!/usr/bin/env node
 /**
- * Generates AI-draft annotations for ayat and stores them in data/annotations (unreviewed).
- * Resumable: ayat that already have all three kinds are skipped, and nothing is ever overwritten.
+ * Generates AI-draft annotations and stores them in data/annotations (unreviewed, labelled).
+ * Resumable and safe to stop at any time: finished ayat are skipped, nothing is ever overwritten.
  *
- *   node modules/quran/scripts/generate-annotations.js --surah 112              one surah
- *   node modules/quran/scripts/generate-annotations.js --surah 2 --from 1 --to 20
- *   node modules/quran/scripts/generate-annotations.js --surah 108 --dry-run    show what would be sent, no network
+ *   node modules/quran/scripts/generate-annotations.js --surahs 112 --only i3rab
+ *   node modules/quran/scripts/generate-annotations.js --surahs all --only i3rab      whole Quran, most-read part first
+ *   node modules/quran/scripts/generate-annotations.js --surahs 78-114 --dry-run      preview, no network
  *
- * Env: PILOT_API_KEY, PILOT_MODEL and PILOT_FREE_TIER=true (see modules/quran/README.md). Free tier: at
- * most PILOT_MAX_CALLS requests per run (default 60), paced by PILOT_MIN_INTERVAL_MS (default 6500).
- * Re-run on another day to continue when the daily free quota is used up.
+ * Options:  --surahs <list|all>   e.g. 112, 78-114, 110-108,1, all   (default: all)
+ *           --only i3rab          only the i'rab (the tafsir books already cover meaning)
+ *           --max-ayat N          stop after storing N ayat this run
+ *           --dry-run             show the plan and the first prompt, no network
+ *
+ * Env: PILOT_API_KEY, PILOT_FREE_TIER=true, and PILOT_MODELS=modelA,modelB,... (or PILOT_MODEL).
+ * Free-tier daily quotas are per model, so several models are rotated; a model that reports its
+ * daily quota is retired for the run. Pacing: PILOT_MIN_INTERVAL_MS (default 4000).
+ * Exit codes: 0 finished, 3 stopped because quotas ran out or too many failures (run again later).
  */
 require("dotenv").config();
-const { loadPack, AYAH_COUNTS } = require("../src/pack");
+const { loadPack } = require("../src/pack");
 const { loadAnnotations } = require("../src/annotations");
-const { buildAyahPrompt, validateGenerated, ensureSources, existingKinds, storeGenerated } = require("../src/annotationGenerator");
+const { buildAyahPrompt, validateGenerated, ensureSources, needsGeneration, storeGenerated } = require("../src/annotationGenerator");
+const { ModelPool, runGeneration, parseSurahList } = require("../src/generationRun");
 const { CostGuard } = require("../pilot/costGuard");
 const { callModel } = require("../pilot/client");
 const { ayahWords } = require("../pilot/prompt");
@@ -23,67 +30,81 @@ const arg = (name, fallback) => {
   const i = process.argv.indexOf(`--${name}`);
   return i > -1 ? process.argv[i + 1] : fallback;
 };
+const flag = (name) => process.argv.includes(`--${name}`);
 
 async function main() {
-  const surah = Number.parseInt(arg("surah"), 10);
-  if (!(surah >= 1 && surah <= 114)) throw new Error("--surah must be 1..114");
-  const from = Number.parseInt(arg("from", "1"), 10);
-  const to = Number.parseInt(arg("to", String(AYAH_COUNTS[surah - 1])), 10);
-  if (!(from >= 1 && to <= AYAH_COUNTS[surah - 1] && from <= to)) throw new Error(`--from/--to must fit surah ${surah} (1..${AYAH_COUNTS[surah - 1]})`);
-  const dryRun = process.argv.includes("--dry-run");
+  const surahs = parseSurahList(arg("surahs", "all"));
+  const only = arg("only");
+  if (only && only !== "i3rab") throw new Error('--only supports "i3rab"');
+  const maxStored = arg("max-ayat") ? Number.parseInt(arg("max-ayat"), 10) : Infinity;
 
   const pack = loadPack();
-  const todo = [];
-  for (let n = from; n <= to; n += 1) {
-    if (existingKinds(surah, n).length < 3) todo.push(n);
+  const targets = [];
+  for (const surah of surahs) {
+    for (let ayah = 1; ayah <= pack.surahs[surah - 1].length; ayah += 1) {
+      const words = ayahWords(pack, surah, ayah);
+      targets.push({ surah, ayah, text: words.join(" "), wordCount: words.length });
+    }
   }
-  console.log(`Surah ${surah}, ayat ${from}-${to}: ${todo.length} need drafts, ${to - from + 1 - todo.length} already have all three.`);
-  if (dryRun || todo.length === 0) {
-    if (dryRun && todo.length) console.log(`--dry-run: first prompt:\n${buildAyahPrompt(surah, todo[0], ayahWords(pack, surah, todo[0]).join(" "))}`);
+  const needs = (s, a) => needsGeneration(s, a, { only });
+  const missing = targets.filter((t) => needs(t.surah, t.ayah));
+  console.log(`Surahs ${arg("surahs", "all")}: ${targets.length} ayat, ${missing.length} still need ${only || "all three kinds"}, ${targets.length - missing.length} done.`);
+
+  if (flag("dry-run") || missing.length === 0) {
+    if (flag("dry-run") && missing.length) console.log(`--dry-run: first prompt:\n${buildAyahPrompt(missing[0].surah, missing[0].ayah, missing[0].text, { only })}`);
     return;
   }
 
   const env = process.env;
   if (env.PILOT_FREE_TIER !== "true") throw new Error("Set PILOT_FREE_TIER=true (this script only runs in free-tier mode).");
-  const missing = ["PILOT_API_KEY", "PILOT_MODEL"].filter((k) => !env[k]);
-  if (missing.length) throw new Error(`missing env: ${missing.join(", ")}`);
-  const guard = CostGuard.free({ maxCalls: Number.parseInt(env.PILOT_MAX_CALLS || "60", 10) });
-  const interval = Number.parseInt(env.PILOT_MIN_INTERVAL_MS || "6500", 10);
+  if (!env.PILOT_API_KEY) throw new Error("missing env: PILOT_API_KEY");
+  const models = (env.PILOT_MODELS || env.PILOT_MODEL || "").split(",");
+  const pool = new ModelPool(models);
+  const guard = CostGuard.free({ maxCalls: Number.parseInt(env.PILOT_MAX_CALLS || "100000", 10) });
+  const intervalMs = Number.parseInt(env.PILOT_MIN_INTERVAL_MS || "4000", 10);
   ensureSources();
+  console.log(`Models: ${pool.models.join(", ")}  (interval ${intervalMs}ms)`);
 
   let stored = 0;
-  let rejected = 0;
-  let streak = 0; // consecutive failures: a daily quota or an outage, not a bad ayah
-  try {
-    for (const [i, n] of todo.entries()) {
-      if (streak >= 4) {
-        console.log("  stopping: 4 failures in a row (quota or outage). Run again later; nothing is lost.");
-        process.exitCode = 3;
-        break;
-      }
-      if (i > 0) await new Promise((resolve) => setTimeout(resolve, interval));
-      const text = ayahWords(pack, surah, n).join(" ");
-      try {
-        const r = await callModel({ apiKey: env.PILOT_API_KEY, model: env.PILOT_MODEL, prompt: buildAyahPrompt(surah, n, text), temperature: 0.2, guard, maxOutputTokens: 4096, retryDelayMs: 30000, validate: validateGenerated });
-        storeGenerated(surah, n, r.json);
+  const summary = await runGeneration({
+    targets: missing,
+    needs,
+    pool,
+    intervalMs,
+    maxStored,
+    sleep: (ms) => new Promise((resolve) => setTimeout(resolve, ms)),
+    generate: async ({ model, surah, ayah, text, wordCount }) => {
+      const r = await callModel({
+        apiKey: env.PILOT_API_KEY, model, guard, temperature: 0.2, maxOutputTokens: 8192, retryDelayMs: 10000, maxAttempts: 3,
+        prompt: buildAyahPrompt(surah, ayah, text, { only }),
+        validate: (json) => validateGenerated(json, { only, wordCount }),
+      });
+      return r.json;
+    },
+    store: (surah, ayah, json, model) => {
+      const target = missing.find((t) => t.surah === surah && t.ayah === ayah);
+      storeGenerated(surah, ayah, json, { only, model, wordCount: target && target.wordCount, ayahText: target && target.text });
+    },
+    onEvent: (e) => {
+      if (e.type === "stored") {
         stored += 1;
-        streak = 0;
-        console.log(`  ${surah}:${n} stored`);
-      } catch (err) {
-        if (err.code === "BUDGET_EXCEEDED") throw err;
-        rejected += 1;
-        streak += 1;
-        console.log(`  ${surah}:${n} skipped (${err.message})`);
-      }
-    }
-  } finally {
-    // The packs must still pass the content-policy validation after every run.
-    loadAnnotations({ includeUnreviewed: true });
-    console.log(`Done: ${stored} stored, ${rejected} skipped, ${guard.attempts}/${guard.maxCalls} requests used. Review with: npm run validate:annotations`);
+        if (stored % 10 === 0 || stored <= 3) console.log(`  stored ${stored}  (${e.surah}:${e.ayah}, ${e.model})`);
+      } else if (e.type === "retired") console.log(`  ${e.model}: daily quota reached, retired for this run. Left: ${pool.remaining().join(", ") || "none"}`);
+      else if (e.type === "failed") console.log(`  ${e.surah}:${e.ayah} skipped (${e.reason})`);
+    },
+  });
+
+  // The packs must still pass the content-policy validation after every run.
+  loadAnnotations({ includeUnreviewed: true });
+  console.log(`\nStopped: ${summary.stopReason}. Stored ${summary.stored}, skipped ${summary.failed}, already done ${summary.skippedExisting}.`);
+  console.log(`By model: ${JSON.stringify(summary.byModel)}${summary.retired.length ? `; retired: ${summary.retired.join(", ")}` : ""}`);
+  if (["ALL_MODELS_EXHAUSTED", "TOO_MANY_FAILURES"].includes(summary.stopReason)) {
+    console.log("Run again later to continue; nothing is lost.");
+    process.exitCode = 3;
   }
 }
 
 main().catch((err) => {
-  console.error(err.code === "BUDGET_EXCEEDED" ? `STOPPED (limit reached; run again later to continue): ${err.message}` : `ERROR: ${err.message}`);
+  console.error(`ERROR: ${err.message}`);
   process.exit(1);
 });

@@ -11,15 +11,29 @@ const estimateTokens = (text) => Math.ceil(text.length / 2);
 const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 /**
+ * Reads a provider error body. Google says which limit was hit: a DAILY quota (stop using this
+ * model until tomorrow) versus a per-minute one (wait the stated seconds and retry).
+ */
+function classifyHttpError(status, bodyText = "") {
+  if (status !== 429) return { quota: null, retryAfterMs: 0 };
+  const daily = /PerDay|requests per day/i.test(bodyText);
+  const minute = !daily && /PerMinute|per minute/i.test(bodyText);
+  const seconds = /"retryDelay"\s*:\s*"(\d+(?:\.\d+)?)s"/.exec(bodyText) || /retry in (\d+(?:\.\d+)?)s/i.exec(bodyText);
+  return { quota: daily ? "daily" : minute ? "minute" : "unknown", retryAfterMs: seconds ? Math.ceil(Number(seconds[1]) * 1000) : 0 };
+}
+
+/**
  * `retryDelayMs`: pause before a retry (free-tier limits are per minute, so retrying instantly
  * just fails again). Tests pass 0.
  */
 async function callModel({ apiKey, model, prompt, temperature, guard, maxOutputTokens = 4096, timeoutMs = 60000, fetchImpl = fetch, base = DEFAULT_BASE, maxAttempts = 2, validate, retryDelayMs = 0, sleep = wait }) {
   let attempts = 0;
   let lastError;
+  let pendingDelay = 0; // set from the provider's own retry hint
   const started = Date.now();
   while (attempts < maxAttempts) {
-    if (attempts > 0 && retryDelayMs > 0) await sleep(retryDelayMs);
+    if (attempts > 0 && (pendingDelay || retryDelayMs) > 0) await sleep(pendingDelay || retryDelayMs);
+    pendingDelay = 0;
     attempts += 1;
     guard.reserve(estimateTokens(prompt), maxOutputTokens);
     try {
@@ -35,8 +49,10 @@ async function callModel({ apiKey, model, prompt, temperature, guard, maxOutputT
       if (!res.ok) {
         // A failed request may still be billed for input; charge the input estimate to stay conservative.
         guard.record(estimateTokens(prompt), 0);
-        lastError = Object.assign(new Error(`HTTP ${res.status}`), { retryable: res.status === 429 || res.status >= 500 });
-        if (!lastError.retryable) break;
+        const info = classifyHttpError(res.status, typeof res.text === "function" ? await res.text().catch(() => "") : "");
+        lastError = Object.assign(new Error(`HTTP ${res.status}`), { retryable: res.status === 429 || res.status >= 500, quota: info.quota });
+        if (!lastError.retryable || info.quota === "daily") break; // a daily quota does not recover by waiting
+        if (info.quota === "minute" && info.retryAfterMs) pendingDelay = Math.min(info.retryAfterMs + 1000, 65000);
         continue;
       }
       const body = await res.json();
@@ -67,7 +83,8 @@ async function callModel({ apiKey, model, prompt, temperature, guard, maxOutputT
   const failure = new Error(`model call failed after ${attempts} attempt(s): ${lastError && lastError.message}`);
   failure.attempts = attempts;
   failure.invalid = Boolean(lastError && lastError.invalid);
+  failure.quota = (lastError && lastError.quota) || null;
   throw failure;
 }
 
-module.exports = { callModel, estimateTokens };
+module.exports = { callModel, estimateTokens, classifyHttpError };
