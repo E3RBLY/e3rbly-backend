@@ -8,11 +8,18 @@ const DEFAULT_BASE = "https://generativelanguage.googleapis.com/v1beta";
 // Rough heuristic, UNMEASURED: only used to reserve budget before a call; real usage is recorded after.
 const estimateTokens = (text) => Math.ceil(text.length / 2);
 
-async function callModel({ apiKey, model, prompt, temperature, guard, maxOutputTokens = 4096, timeoutMs = 60000, fetchImpl = fetch, base = DEFAULT_BASE, maxAttempts = 2, validate }) {
+const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+/**
+ * `retryDelayMs`: pause before a retry (free-tier limits are per minute, so retrying instantly
+ * just fails again). Tests pass 0.
+ */
+async function callModel({ apiKey, model, prompt, temperature, guard, maxOutputTokens = 4096, timeoutMs = 60000, fetchImpl = fetch, base = DEFAULT_BASE, maxAttempts = 2, validate, retryDelayMs = 0, sleep = wait }) {
   let attempts = 0;
   let lastError;
   const started = Date.now();
   while (attempts < maxAttempts) {
+    if (attempts > 0 && retryDelayMs > 0) await sleep(retryDelayMs);
     attempts += 1;
     guard.reserve(estimateTokens(prompt), maxOutputTokens);
     try {

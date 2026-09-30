@@ -73,6 +73,12 @@ function summarize(calls, { totalWords, passes = 1, retryOverhead = 0.3 }) {
     latencyP50Ms: pick(lat, 0.5),
     latencyMaxMs: lat[lat.length - 1],
     retryRate: sum((c) => c.attempts - 1) / n,
+    // Works on the free tier too (where money is always 0): total tokens for the whole Quran.
+    extrapolationTokens: (() => {
+      const perWordTokens = calls.map((c) => (c.inTok + c.outTok) / c.words).sort((a, b) => a - b);
+      const scaleT = (t) => Math.round(t * totalWords * passes * (1 + retryOverhead));
+      return { low: scaleT(perWordTokens[0]), mean: scaleT(sum((c) => c.inTok + c.outTok) / sum((c) => c.words)), high: scaleT(perWordTokens[perWordTokens.length - 1]) };
+    })(),
     extrapolationUsd: { low: scale(perWord[0]), mean: scale(sum((c) => c.costUsd) / sum((c) => c.words)), high: scale(perWord[perWord.length - 1]) },
     assumptions: { totalWords, passes, retryOverhead },
   };

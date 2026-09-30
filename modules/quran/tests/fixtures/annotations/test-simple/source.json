@@ -1,0 +1,9 @@
+{
+  "id": "test-simple",
+  "kind": "simple",
+  "name_ar": "شرح مبسّط تجريبي (بيانات اختبار فقط)",
+  "attribution_text": "بيانات اختبار: مسودة آلية للاختبار",
+  "license": "in-house draft, reviewed",
+  "license_file": "test-permission.md",
+  "provenance": "ai_draft"
+}
