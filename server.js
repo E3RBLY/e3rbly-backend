@@ -11,6 +11,7 @@ const quizRoutes = require("./src/routes/quizRoutes");
 const grammarConceptsRoutes = require("./src/routes/grammarConceptsRoutes");
 const tashkeelRoutes = require("./src/routes/tashkeelRoutes");
 const { mountQuran } = require("./modules/quran/src/mount");
+const { mountDaily } = require("./modules/daily/src/mount");
 
 const app = express();
 
@@ -77,6 +78,9 @@ app.use("/api/tashkeel", tashkeelRoutes);
 
 // --- Quran text (read-only, public, no AI): modules/quran ---
 mountQuran(app);
+
+// --- Daily i'rab puzzle (read-only, public, no AI): modules/daily ---
+mountDaily(app);
 
 // --- Errors ---
 app.use((req, res) => {

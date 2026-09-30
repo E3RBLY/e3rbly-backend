@@ -72,3 +72,29 @@ Serves items from packs in `modules/quran/data/annotations`. Unreviewed AI draft
 - If the upstream service fails, the response is still `200` with the other items, plus `warnings: [{code, sources[]}]` and `Cache-Control: no-store`. Complete answers are `public, s-maxage=86400, stale-while-revalidate=604800`. ETag is derived from the real body.
 - `GET /v1/quran/annotation-sources` lists the books with `remote: true`, `coverage.ayat: 6236`, and `remote_enabled`.
 - Kill switches: `QURAN_REMOTE_TAFSIR=false` (all books) or `QURAN_DISABLED_SOURCES=aqc-qurtubi,...` (individual). Circuit breaker: 3 consecutive upstream failures pause upstream calls for 60 s.
+
+## Daily I'rab (`modules/daily`)
+
+`GET /v1/daily/today`: one curated i'rab puzzle per day, identical for every user. Public, read-only, no auth, no AI.
+
+```json
+{
+  "dayNumber": 1,
+  "date": "2026-10-01",
+  "expiresAt": "2026-10-01T21:00:00.000Z",
+  "reviewStatus": "unreviewed",
+  "notice": "أسئلة اليوم قيد المراجعة اللغوية وقد تحتوي على أخطاء.",
+  "puzzle": {
+    "id": "d-001",
+    "sentence": "ذهب الولد إلى المدرسة",
+    "targets": [{ "word": "ذهب", "options": ["...", "...", "...", "..."], "correctIndex": 2, "explanation": "..." }]
+  }
+}
+```
+
+- The local day changes at midnight **UTC+3** (fixed, no daylight saving). `dayNumber` counts from the pool's `epoch` (never below 1); the pool repeats when it runs out.
+- `notice` is present only while `reviewStatus` is `unreviewed`; the app must show it.
+- `correctIndex` is sent so a fetched day works offline (acceptable for a local-only game).
+- `Cache-Control: public, max-age=min(300, seconds until expiresAt)`, so nothing caches yesterday's puzzle past midnight.
+- Errors use `{ "error": { "code", "message" } }`; per-IP limit `RATE_LIMIT_DAILY_PER_MIN` (default 120) answers `429 RATE_LIMITED`.
+- Content: `modules/daily/data/puzzles.json`, authoring rules in `docs/DAILY_CONTENT_GUIDE.md`. A malformed file stops the server from starting.
