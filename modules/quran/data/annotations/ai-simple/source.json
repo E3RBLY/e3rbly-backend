@@ -1,0 +1,9 @@
+{
+  "id": "ai-simple",
+  "kind": "simple",
+  "name_ar": "شرح مبسّط (مسودة بالذكاء الاصطناعي)",
+  "attribution_text": "مولَّد بالذكاء الاصطناعي ولم يُراجع بعد؛ ليس منقولًا من كتاب تفسير.",
+  "license": "In-house AI draft; no third-party text used (docs/licenses/ai-generated-drafts.md)",
+  "license_file": "ai-generated-drafts.md",
+  "provenance": "ai_draft"
+}
