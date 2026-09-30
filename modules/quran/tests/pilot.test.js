@@ -61,6 +61,43 @@ describe("CostGuard", () => {
   });
 });
 
+describe("free-tier mode (no money)", () => {
+  test("requires a positive whole call limit", () => {
+    expect(() => CostGuard.free({ maxCalls: 0 })).toThrow();
+    expect(() => CostGuard.free({ maxCalls: 1.5 })).toThrow();
+  });
+
+  test("never spends: every request costs $0 but counts toward the call cap", async () => {
+    const guard = CostGuard.free({ maxCalls: 2 });
+    const fetchImpl = jest.fn().mockResolvedValue(okResponse(["أ"], { promptTokenCount: 1000, candidatesTokenCount: 500 }));
+    await callModel({ apiKey: "k", model: "m", prompt: "x", temperature: 0, guard, fetchImpl });
+    expect(guard.spentUsd).toBe(0);
+    expect(guard.attempts).toBe(1);
+  });
+
+  test("stops before the request that would pass the call cap, retries included", async () => {
+    const guard = CostGuard.free({ maxCalls: 2 });
+    const fetchImpl = jest.fn().mockResolvedValue({ ok: false, status: 429 });
+    await expect(callModel({ apiKey: "k", model: "m", prompt: "x", temperature: 0, guard, fetchImpl, maxAttempts: 5 })).rejects.toMatchObject({ code: "BUDGET_EXCEEDED" });
+    expect(fetchImpl).toHaveBeenCalledTimes(2);
+  });
+
+  test("waits between retries so a per-minute limit can clear", async () => {
+    const sleep = jest.fn().mockResolvedValue();
+    const fetchImpl = jest.fn().mockResolvedValueOnce({ ok: false, status: 429 }).mockResolvedValueOnce(okResponse(["أ"]));
+    await callModel({ apiKey: "k", model: "m", prompt: "x", temperature: 0, guard: CostGuard.free({ maxCalls: 5 }), fetchImpl, retryDelayMs: 30000, sleep });
+    expect(sleep).toHaveBeenCalledTimes(1);
+    expect(sleep).toHaveBeenCalledWith(30000);
+  });
+
+  test("summaries extrapolate in tokens when money is always 0", () => {
+    const calls = [{ words: 5, inTok: 500, outTok: 500, costUsd: 0, latencyMs: 10, attempts: 1 }];
+    const s = summarize(calls, { totalWords: 1000, passes: 1, retryOverhead: 0 });
+    expect(s.extrapolationTokens.mean).toBe(200000);
+    expect(s.extrapolationUsd.mean).toBe(0);
+  });
+});
+
 describe("callModel behaviour", () => {
   test("sends the key only in a header, never in the URL or body", async () => {
     const fetchImpl = jest.fn().mockResolvedValue(okResponse(["أ"]));

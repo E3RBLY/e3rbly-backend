@@ -6,9 +6,12 @@
  *   node modules/quran/pilot/run.js --run           real calls (needs the env below)
  *   node modules/quran/pilot/run.js --run --gold gold/pilot-gold.json    also score against a gold file
  *
- * Env (--run only): PILOT_API_KEY, PILOT_MODEL, PILOT_CAP_USD, PILOT_PRICE_IN_PER_M, PILOT_PRICE_OUT_PER_M
- * Prices are USD per 1M tokens, copied by the owner from the provider's pricing page. Nothing is assumed.
+ * Env (--run only): PILOT_API_KEY, PILOT_MODEL, and EITHER
+ *   free tier:  PILOT_FREE_TIER=true (optional PILOT_MAX_CALLS=60, PILOT_MIN_INTERVAL_MS=6500), no money involved
+ *   paid:       PILOT_CAP_USD, PILOT_PRICE_IN_PER_M, PILOT_PRICE_OUT_PER_M (USD per 1M tokens from the
+ *               provider's pricing page; nothing is assumed)
  */
+require("dotenv").config(); // reads PILOT_* from the git-ignored .env, so the key never goes on the command line
 const fs = require("fs");
 const path = require("path");
 const { loadPack } = require("../src/pack");
@@ -47,9 +50,17 @@ async function main() {
   }
 
   const env = process.env;
-  const missing = ["PILOT_API_KEY", "PILOT_MODEL", "PILOT_CAP_USD", "PILOT_PRICE_IN_PER_M", "PILOT_PRICE_OUT_PER_M"].filter((k) => !env[k]);
+  const free = env.PILOT_FREE_TIER === "true";
+  const required = free ? ["PILOT_API_KEY", "PILOT_MODEL"] : ["PILOT_API_KEY", "PILOT_MODEL", "PILOT_CAP_USD", "PILOT_PRICE_IN_PER_M", "PILOT_PRICE_OUT_PER_M"];
+  const missing = required.filter((k) => !env[k]);
   if (missing.length) throw new Error(`missing env: ${missing.join(", ")}`);
-  const guard = new CostGuard({ capUsd: Number(env.PILOT_CAP_USD), priceInPerM: Number(env.PILOT_PRICE_IN_PER_M), priceOutPerM: Number(env.PILOT_PRICE_OUT_PER_M) });
+  // Free tier: no dollars, a hard call cap, and pacing so the per-minute limit is not hit.
+  const guard = free
+    ? CostGuard.free({ maxCalls: Number.parseInt(env.PILOT_MAX_CALLS || "60", 10) })
+    : new CostGuard({ capUsd: Number(env.PILOT_CAP_USD), priceInPerM: Number(env.PILOT_PRICE_IN_PER_M), priceOutPerM: Number(env.PILOT_PRICE_OUT_PER_M) });
+  const minIntervalMs = free ? Number.parseInt(env.PILOT_MIN_INTERVAL_MS || "6500", 10) : 0;
+  const retryDelayMs = free ? 30000 : 0;
+  if (free) console.log(`FREE TIER mode: at most ${guard.maxCalls} requests, one every ${minIntervalMs}ms. No money is spent.`);
   const gold = goldPath ? JSON.parse(fs.readFileSync(goldPath, "utf8")) : null;
 
   const calls = [];
@@ -60,8 +71,9 @@ async function main() {
     for (const item of items) {
       for (const [pass, temperature] of TEMPERATURES.entries()) {
         const before = guard.spentUsd;
+        if (minIntervalMs > 0 && calls.length + failures.length > 0) await new Promise((resolve) => setTimeout(resolve, minIntervalMs));
         try {
-          const r = await callModel({ apiKey: env.PILOT_API_KEY, model: env.PILOT_MODEL, prompt: item.prompt, temperature, guard, validate: (j) => validateDraft(j, item.words) });
+          const r = await callModel({ apiKey: env.PILOT_API_KEY, model: env.PILOT_MODEL, prompt: item.prompt, temperature, guard, retryDelayMs, validate: (j) => validateDraft(j, item.words) });
           calls.push({ ref: item.ref, pass, words: item.words.length, inTok: r.inTok, outTok: r.outTok, costUsd: guard.spentUsd - before, latencyMs: r.latencyMs, attempts: r.attempts });
           (passResults[item.ref] = passResults[item.ref] || []).push(r.json);
           drafts.push({ ref: item.ref, pass, provenance: "ai_draft", review_status: "unreviewed", grounded: false, model: env.PILOT_MODEL, draft: r.json });
@@ -80,7 +92,8 @@ async function main() {
     const report = { spentUsd: guard.spentUsd, capUsd: guard.capUsd, calls: calls.length, failures, summary, disagreement: dis, goldScored: Boolean(gold), goldErrors: goldErr, note: "Pilot only: not a validated error rate." };
     fs.writeFileSync(path.join(OUT_DIR, `drafts-${stamp}.json`), JSON.stringify(drafts, null, 2));
     fs.writeFileSync(path.join(OUT_DIR, `report-${stamp}.json`), JSON.stringify(report, null, 2));
-    console.log(`Spent $${guard.spentUsd.toFixed(4)} of $${guard.capUsd} cap; ${calls.length} calls ok, ${failures.length} failed. Wrote pilot-output/*-${stamp}.json`);
+    const spent = guard.freeTier ? `Free tier: ${guard.attempts} of ${guard.maxCalls} allowed requests used, $0 spent` : `Spent $${guard.spentUsd.toFixed(4)} of $${guard.capUsd} cap`;
+    console.log(`${spent}; ${calls.length} calls ok, ${failures.length} failed. Wrote pilot-output/*-${stamp}.json`);
   }
 }
 
