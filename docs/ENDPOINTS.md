@@ -48,7 +48,7 @@ Read-only, no auth, no AI, no DB. Data: Tanzil Uthmani text (CC BY 3.0, unmodifi
 
 ### Ayah annotations (tafsir / i'rab / simple explanation), same module
 
-Serves only `reviewed` items from packs in `modules/quran/data/annotations` (empty until licensed content exists; `QURAN_INCLUDE_UNREVIEWED=true` for staging). Every item carries its source (name, author, attribution text, license, provenance) and review status. Several i'rab wujuh come back as separate labelled items. No AI at request time.
+Serves items from packs in `modules/quran/data/annotations`. Unreviewed AI drafts are included by default (each carries `review_status: unreviewed`, and the app warns); set `QURAN_INCLUDE_UNREVIEWED=false` to serve only `reviewed` items. Every item carries its source (name, author, attribution text, license, provenance) and review status. Several i'rab wujuh come back as separate labelled items. No AI at request time.
 
 | # | Method | Path | Input | Output | Tests |
 |---|---|---|---|---|---|

@@ -35,7 +35,7 @@ data/annotations/<source-id>/surah-<n>.json
 { "2:255": [ { "body_ar": "…", "review_status": "reviewed" } ] }
 ```
 
-`review_status`: `unreviewed` | `reviewed` | `disputed`. **Only `reviewed` items are served.** Set `QURAN_INCLUDE_UNREVIEWED=true` on a staging deploy to see the rest.
+`review_status`: `unreviewed` | `reviewed` | `disputed`. Unreviewed items are served by default (labelled in the app); set `QURAN_INCLUDE_UNREVIEWED=false` to serve only `reviewed` ones.
 
 ## Check before committing
 

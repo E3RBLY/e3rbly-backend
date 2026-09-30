@@ -18,7 +18,7 @@ Known upstream quirk: in Tanzil's text, the basmala at the start of surahs 95 an
 
 ## AI-draft explanations (tafsir / simple / i'rab)
 
-Shipped drafts: Al-Fatiha and Al-Ikhlas. All are `ai_draft` + `unreviewed`; the app shows a warning on each. The server serves them only when `QURAN_INCLUDE_UNREVIEWED=true`.
+Shipped drafts: Al-Fatiha and Al-Ikhlas. All are `ai_draft` + `unreviewed`; the app shows a warning on each. They are served by default (owner decision); set `QURAN_INCLUDE_UNREVIEWED=false` to hide unreviewed items.
 
 Generate more with a free Gemini key (see `.env.example`: `PILOT_API_KEY`, `PILOT_MODEL`, `PILOT_FREE_TIER=true`):
 

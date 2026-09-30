@@ -164,8 +164,24 @@ describe("GET /v1/quran/annotation-sources", () => {
     expect(res.body.sources.map((s) => s.id).sort()).toEqual(["test-irab", "test-simple", "test-tafsir"]);
   });
 
-  test("the default app (real data folder) serves an empty list until content is added", async () => {
-    const res = await request(createApp({ pack, maxPerMinute: 100000 })).get("/v1/quran/annotation-sources");
-    expect(res.body.sources).toEqual([]);
+  test("production default: the shipped AI drafts are served (labelled unreviewed), and can be switched off", async () => {
+    const env = process.env.QURAN_INCLUDE_UNREVIEWED;
+    try {
+      delete process.env.QURAN_INCLUDE_UNREVIEWED;
+      const on = await request(createApp({ pack, annotations: loadAnnotations(), maxPerMinute: 100000 })).get("/v1/quran/annotation-sources");
+      expect(on.body.reviewed_only).toBe(false);
+      expect(on.body.sources.map((s) => s.id).sort()).toEqual(["ai-irab", "ai-simple", "ai-tafsir"]);
+
+      const item = (await request(createApp({ pack, annotations: loadAnnotations(), maxPerMinute: 100000 })).get("/v1/quran/ayat/112/1/annotations")).body.annotations[0];
+      expect(item.review_status).toBe("unreviewed");
+      expect(item.source.provenance).toBe("ai_draft");
+
+      process.env.QURAN_INCLUDE_UNREVIEWED = "false";
+      const off = await request(createApp({ pack, annotations: loadAnnotations(), maxPerMinute: 100000 })).get("/v1/quran/annotation-sources");
+      expect(off.body).toEqual({ sources: [], reviewed_only: true });
+    } finally {
+      if (env === undefined) delete process.env.QURAN_INCLUDE_UNREVIEWED;
+      else process.env.QURAN_INCLUDE_UNREVIEWED = env;
+    }
   });
 });

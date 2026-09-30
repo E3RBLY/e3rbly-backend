@@ -13,7 +13,7 @@ On 2026-09-30 the owner asked for the tafsir, simple explanation and i'rab tabs 
 1. `provenance: ai_draft` and `review_status: unreviewed` are stored in the data and returned by the API.
 2. The app shows a visible warning on every unreviewed text: it is AI-generated, not checked by a specialist, may contain errors, and must not be relied on alone.
 3. It is **never attributed to a scholar or a book**. Source names say "مسودة بالذكاء الاصطناعي". The "tafsir" tab here is a plain-language meaning summary, not a quotation of Ibn Kathir, al-Tabari or anyone else.
-4. The server serves unreviewed content only when `QURAN_INCLUDE_UNREVIEWED=true` is set, so it is an explicit choice per deployment.
+4. **Owner decision 2026-09-30: public production shows these labelled drafts by default.** Set `QURAN_INCLUDE_UNREVIEWED=false` on the server to hide unreviewed content instantly (only `reviewed` items are then served).
 5. Reviewed text replaces drafts item by item: a specialist changes `review_status` to `reviewed` (or corrects the text), and the warning disappears for that item.
 
 ## Known risks (why the warning exists)

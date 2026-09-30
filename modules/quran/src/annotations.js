@@ -82,7 +82,7 @@ function readJson(file) {
  * Loads and validates every pack. Throws one error listing all problems, so a bad
  * pack stops the server (or CI) instead of silently serving unvetted content.
  */
-function loadAnnotations({ dir = DEFAULT_DIR, licensesDir = DEFAULT_LICENSES_DIR, includeUnreviewed = process.env.QURAN_INCLUDE_UNREVIEWED === "true" } = {}) {
+function loadAnnotations({ dir = DEFAULT_DIR, licensesDir = DEFAULT_LICENSES_DIR, includeUnreviewed = process.env.QURAN_INCLUDE_UNREVIEWED !== "false" } = {}) {
   const sources = new Map();
   const byAyah = new Map();
   const problems = [];
