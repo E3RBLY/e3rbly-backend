@@ -53,18 +53,26 @@ async function main() {
 
   let stored = 0;
   let rejected = 0;
+  let streak = 0; // consecutive failures: a daily quota or an outage, not a bad ayah
   try {
     for (const [i, n] of todo.entries()) {
+      if (streak >= 4) {
+        console.log("  stopping: 4 failures in a row (quota or outage). Run again later; nothing is lost.");
+        process.exitCode = 3;
+        break;
+      }
       if (i > 0) await new Promise((resolve) => setTimeout(resolve, interval));
       const text = ayahWords(pack, surah, n).join(" ");
       try {
         const r = await callModel({ apiKey: env.PILOT_API_KEY, model: env.PILOT_MODEL, prompt: buildAyahPrompt(surah, n, text), temperature: 0.2, guard, maxOutputTokens: 4096, retryDelayMs: 30000, validate: validateGenerated });
         storeGenerated(surah, n, r.json);
         stored += 1;
+        streak = 0;
         console.log(`  ${surah}:${n} stored`);
       } catch (err) {
         if (err.code === "BUDGET_EXCEEDED") throw err;
         rejected += 1;
+        streak += 1;
         console.log(`  ${surah}:${n} skipped (${err.message})`);
       }
     }

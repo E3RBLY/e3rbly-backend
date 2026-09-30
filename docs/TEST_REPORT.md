@@ -53,3 +53,7 @@ Endpoint coverage: every live route has at least one success test and its valida
 ## Ayah annotations (local, 2026-09-30)
 
 `npx jest`: 18 suites, 437 tests PASS. `npm run validate:annotations` OK (0 packs). Covered: reviewed-only serving, staging opt-in, wujuh kept separate and attributed, every invalid-pack rule (missing/unknown license file, path traversal, enums, ayah refs, empty body, unlabeled wujuh, folder/id mismatch), empty answer for uncovered ayat, kind filter, 400/404 envelope, ETag changes with content. Uses clearly-marked test fixtures only; no real tafsir/i'rab text exists in the repo. Live Preview smoke: NOT RUN.
+
+## Tafsir books on demand (local, 2026-09-30)
+
+`npx jest`: 20 suites, 489 tests PASS. Covered with a fake AlQuran Cloud: one upstream request for six books, exact URL shape, priority order, kind filter fetches only its books, cache hit, partial cache fill, concurrent-request merging, bounded LRU, HTTP error / timeout / circuit breaker (3 failures, 60 s pause, retry after), failures not cached, upstream data validation (wrong ayah, wrong surah, empty, non-string, oversized, unknown edition), partial answers keep good books and report the missing ones, `no-store` on partial vs `s-maxage` on complete, 304 on repeat, kill switches, config validation (missing license file, duplicate id), 404 without touching upstream. **Real-service check (manual):** 2:255 returned all six books in 820 ms, second call 0 ms from cache.

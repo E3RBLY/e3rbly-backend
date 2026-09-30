@@ -5,5 +5,6 @@
   "attribution_text": "مولَّد بالذكاء الاصطناعي ولم يُراجع بعد؛ ملخّص لمعنى الآية وليس نقلًا عن مفسّر بعينه.",
   "license": "In-house AI draft; no third-party text used (docs/licenses/ai-generated-drafts.md)",
   "license_file": "ai-generated-drafts.md",
-  "provenance": "ai_draft"
+  "provenance": "ai_draft",
+  "priority": 900
 }

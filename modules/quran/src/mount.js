@@ -2,6 +2,7 @@ const { createRateLimiter } = require("../../../src/middleware/rateLimit");
 const { loadPack } = require("./pack");
 const { createQuranRouter } = require("./router");
 const { loadAnnotations } = require("./annotations");
+const { defaultRemoteTafsir } = require("./remoteSources");
 
 /** Reuse the shared per-IP limiter, but answer in this module's error envelope. */
 function envelopeLimiter(options) {
@@ -20,8 +21,8 @@ function envelopeLimiter(options) {
  * Mount /v1/quran on an Express app. Loading the pack verifies every checksum,
  * so a modified text file stops the server from starting.
  */
-function mountQuran(app, { pack = loadPack(), annotations = loadAnnotations(), maxPerMinute = Number.parseInt(process.env.RATE_LIMIT_QURAN_PER_MIN, 10) || 120 } = {}) {
-  app.use("/v1/quran", envelopeLimiter({ name: "quran", windowMs: 60_000, max: maxPerMinute }), createQuranRouter(pack, annotations));
+function mountQuran(app, { pack = loadPack(), annotations = loadAnnotations(), remote = defaultRemoteTafsir(), maxPerMinute = Number.parseInt(process.env.RATE_LIMIT_QURAN_PER_MIN, 10) || 120 } = {}) {
+  app.use("/v1/quran", envelopeLimiter({ name: "quran", windowMs: 60_000, max: maxPerMinute }), createQuranRouter(pack, annotations, remote));
   return app;
 }
 

@@ -1,0 +1,88 @@
+{
+  "provider": {
+    "id": "alquran-cloud",
+    "name": "AlQuran Cloud",
+    "url": "https://alquran.cloud",
+    "base_url": "https://api.alquran.cloud/v1"
+  },
+  "sources": [
+    {
+      "id": "aqc-muyassar",
+      "edition_id": "ar.muyassar",
+      "kind": "simple",
+      "priority": 10,
+      "name_ar": "التفسير الميسر",
+      "author_ar": "مجمع الملك فهد لطباعة المصحف الشريف",
+      "edition": "نسخة AlQuran Cloud (ar.muyassar)",
+      "attribution_text": "المصدر: التفسير الميسر، مجمع الملك فهد لطباعة المصحف الشريف، عبر AlQuran Cloud (alquran.cloud).",
+      "license": "Served by AlQuran Cloud; rights remain with the original contributors (docs/licenses/alquran-cloud-terms.md)",
+      "license_file": "alquran-cloud-terms.md",
+      "provenance": "imported"
+    },
+    {
+      "id": "aqc-jalalayn",
+      "edition_id": "ar.jalalayn",
+      "kind": "tafsir",
+      "priority": 20,
+      "name_ar": "تفسير الجلالين",
+      "author_ar": "جلال الدين المحلي وجلال الدين السيوطي",
+      "edition": "نسخة AlQuran Cloud (ar.jalalayn)",
+      "attribution_text": "المصدر: تفسير الجلالين، عبر AlQuran Cloud (alquran.cloud).",
+      "license": "Served by AlQuran Cloud; rights remain with the original contributors (docs/licenses/alquran-cloud-terms.md)",
+      "license_file": "alquran-cloud-terms.md",
+      "provenance": "imported"
+    },
+    {
+      "id": "aqc-waseet",
+      "edition_id": "ar.waseet",
+      "kind": "tafsir",
+      "priority": 30,
+      "name_ar": "التفسير الوسيط",
+      "author_ar": null,
+      "edition": "نسخة AlQuran Cloud (ar.waseet)",
+      "attribution_text": "المصدر: التفسير الوسيط، كما سمّته AlQuran Cloud (المؤلف غير محدد فيها)، عبر alquran.cloud.",
+      "license": "Served by AlQuran Cloud; rights remain with the original contributors (docs/licenses/alquran-cloud-terms.md)",
+      "license_file": "alquran-cloud-terms.md",
+      "provenance": "imported"
+    },
+    {
+      "id": "aqc-baghawi",
+      "edition_id": "ar.baghawi",
+      "kind": "tafsir",
+      "priority": 40,
+      "name_ar": "تفسير البغوي (معالم التنزيل)",
+      "author_ar": "الحسين بن مسعود البغوي",
+      "edition": "نسخة AlQuran Cloud (ar.baghawi)",
+      "attribution_text": "المصدر: تفسير البغوي، عبر AlQuran Cloud (alquran.cloud).",
+      "license": "Served by AlQuran Cloud; rights remain with the original contributors (docs/licenses/alquran-cloud-terms.md)",
+      "license_file": "alquran-cloud-terms.md",
+      "provenance": "imported"
+    },
+    {
+      "id": "aqc-qurtubi",
+      "edition_id": "ar.qurtubi",
+      "kind": "tafsir",
+      "priority": 50,
+      "name_ar": "تفسير القرطبي (الجامع لأحكام القرآن)",
+      "author_ar": "أبو عبد الله محمد بن أحمد القرطبي",
+      "edition": "نسخة AlQuran Cloud (ar.qurtubi)",
+      "attribution_text": "المصدر: تفسير القرطبي، عبر AlQuran Cloud (alquran.cloud).",
+      "license": "Served by AlQuran Cloud; rights remain with the original contributors (docs/licenses/alquran-cloud-terms.md)",
+      "license_file": "alquran-cloud-terms.md",
+      "provenance": "imported"
+    },
+    {
+      "id": "aqc-miqbas",
+      "edition_id": "ar.miqbas",
+      "kind": "tafsir",
+      "priority": 60,
+      "name_ar": "تنوير المقباس من تفسير ابن عباس",
+      "author_ar": null,
+      "edition": "نسخة AlQuran Cloud (ar.miqbas)",
+      "attribution_text": "المصدر: تنوير المقباس، عبر AlQuran Cloud (alquran.cloud). تنبيه: نسبة هذا الكتاب إلى ابن عباس رضي الله عنهما محل خلاف بين أهل العلم.",
+      "license": "Served by AlQuran Cloud; rights remain with the original contributors (docs/licenses/alquran-cloud-terms.md)",
+      "license_file": "alquran-cloud-terms.md",
+      "provenance": "imported"
+    }
+  ]
+}

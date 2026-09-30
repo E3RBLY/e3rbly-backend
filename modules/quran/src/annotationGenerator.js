@@ -38,7 +38,7 @@ function buildAyahPrompt(surah, ayah, textAyah) {
     '- "tafsir": a short summary of the meaning of the key words and the ayah, in plain Arabic. Do NOT quote or cite any book, scholar, hadith text or narrator, and do not write phrases like "قال ابن كثير". You may say "ويرى بعض المفسرين" only for a widely known difference of view.',
     '- "i3rab": the grammatical analysis (إعراب) of the ayah\'s words. Give ONE item unless grammarians widely accept more than one wajh; then give one item per wajh, each with a short "label" (for example "الوجه الأول: …"). With a single item, leave "label" as "".',
     "- Never change, correct or re-quote the ayah text. Do not add content that is not in the ayah.",
-    "- No markdown, no headings, no Latin letters.",
+    "- No markdown, no headings, no Latin letters. Write without tashkeel (harakat); quoting a word from the ayah inside « » is fine.",
   ].join("\n");
 }
 
@@ -55,6 +55,12 @@ function validateGenerated(json) {
   }
   return null;
 }
+
+/**
+ * Explanations are plain prose: the model's own tashkeel is where its slips show (for example a wrong
+ * vowel), so generated text is stored without harakat. The Quran text itself is never touched.
+ */
+const stripHarakat = (s) => s.replace(/[ً-ْٰـ]/g, "").replace(/\s{2,}/g, " ").trim();
 
 function readJsonIfExists(file) {
   return fs.existsSync(file) ? JSON.parse(fs.readFileSync(file, "utf8")) : {};
@@ -94,8 +100,8 @@ function storeGenerated(surah, ayah, json, { dir = DEFAULT_DIR } = {}) {
     if ((items[ref] || []).length > 0) continue;
     items[ref] =
       s.field === "i3rab"
-        ? json.i3rab.map((w) => ({ ...(w.label && w.label.trim() ? { label: w.label.trim() } : {}), body_ar: w.body.trim(), review_status: "unreviewed" }))
-        : [{ body_ar: json[s.field].trim(), review_status: "unreviewed" }];
+        ? json.i3rab.map((w) => ({ ...(w.label && w.label.trim() ? { label: stripHarakat(w.label) } : {}), body_ar: stripHarakat(w.body), review_status: "unreviewed" }))
+        : [{ body_ar: stripHarakat(json[s.field]), review_status: "unreviewed" }];
     const sorted = Object.fromEntries(Object.entries(items).sort(([a], [b]) => Number(a.split(":")[1]) - Number(b.split(":")[1])));
     fs.writeFileSync(file, `${JSON.stringify(sorted, null, 2)}\n`);
     written.push(s.field);
@@ -103,4 +109,4 @@ function storeGenerated(surah, ayah, json, { dir = DEFAULT_DIR } = {}) {
   return written;
 }
 
-module.exports = { DRAFT_SOURCES, buildAyahPrompt, validateGenerated, ensureSources, existingKinds, storeGenerated };
+module.exports = { stripHarakat, DRAFT_SOURCES, buildAyahPrompt, validateGenerated, ensureSources, existingKinds, storeGenerated };

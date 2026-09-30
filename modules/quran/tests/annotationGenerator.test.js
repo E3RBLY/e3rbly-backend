@@ -2,7 +2,7 @@ const fs = require("fs");
 const os = require("os");
 const path = require("path");
 const { loadAnnotations } = require("../src/annotations");
-const { buildAyahPrompt, validateGenerated, ensureSources, existingKinds, storeGenerated, DRAFT_SOURCES } = require("../src/annotationGenerator");
+const { stripHarakat, buildAyahPrompt, validateGenerated, ensureSources, existingKinds, storeGenerated, DRAFT_SOURCES } = require("../src/annotationGenerator");
 
 const good = {
   simple: "معنى الآية بلغة سهلة يفهمها الجميع بإذن الله.",
@@ -89,6 +89,15 @@ describe("storing drafts", () => {
     storeGenerated(112, 4, good, { dir });
     storeGenerated(112, 2, good, { dir });
     expect(Object.keys(JSON.parse(fs.readFileSync(path.join(dir, "ai-simple", "surah-112.json"), "utf8")))).toEqual(["112:2", "112:4"]);
+  });
+
+  test("generated text is stored without harakat (the model's vowel slips never reach users)", () => {
+    const { dir } = tempDirs();
+    ensureSources({ dir });
+    storeGenerated(112, 1, { ...good, simple: "يَدَبِّرُ اللَّهُ أُمُورَ خَلْقِهِ بِحِكْمَةٍ وَرَحْمَةٍ." }, { dir });
+    const stored = JSON.parse(fs.readFileSync(path.join(dir, "ai-simple", "surah-112.json"), "utf8"))["112:1"][0].body_ar;
+    expect(stored).toBe("يدبر الله أمور خلقه بحكمة ورحمة.");
+    expect(stripHarakat("مَلِكِ النَّاسِ")).toBe("ملك الناس");
   });
 
   test("rejects invalid model output and writes nothing", () => {

@@ -3,6 +3,7 @@ const { z } = require("zod");
 const { ApiError, envelope } = require("./http");
 const { sha256, splitBasmala } = require("./pack");
 const { KINDS, loadAnnotations } = require("./annotations");
+const { defaultRemoteTafsir } = require("./remoteSources");
 
 const positiveInt = z.coerce.number().int().min(1);
 const surahParam = positiveInt.max(114);
@@ -18,7 +19,7 @@ function parse(schema, value, field = "") {
 }
 
 /** Read-only /v1/quran routes over an already verified pack. */
-function createQuranRouter(pack, annotations = loadAnnotations()) {
+function createQuranRouter(pack, annotations = loadAnnotations(), remote = defaultRemoteTafsir()) {
   const router = express.Router();
   const { source } = pack;
   const sourceRef = { id: source.id, name_ar: source.name_ar, name_en: source.name_en, url: source.url, license: source.license, license_url: source.license_url };
@@ -27,7 +28,7 @@ function createQuranRouter(pack, annotations = loadAnnotations()) {
   // The pack is immutable per deploy: same URL + same pack = same bytes, so a strong ETag is safe.
   router.use((req, res, next) => {
     res.set("Cache-Control", "public, max-age=3600");
-    res.set("ETag", `"${sha256(`${packSha}${annotations.version}${req.originalUrl}`).slice(0, 32)}"`);
+    res.set("ETag", `"${sha256(`${packSha}${annotations.version}${remote.version}${req.originalUrl}`).slice(0, 32)}"`);
     next();
   });
 
@@ -79,22 +80,39 @@ function createQuranRouter(pack, annotations = loadAnnotations()) {
 
   // Which annotation sources exist and how many ayat each covers (only served, i.e. reviewed, content).
   router.get("/annotation-sources", (req, res) => {
-    res.json({ sources: annotations.sources(), reviewed_only: !annotations.includeUnreviewed });
+    const sources = [...annotations.sources(), ...remote.sources()].sort((a, b) => a.priority - b.priority || a.id.localeCompare(b.id));
+    res.json({ sources, reviewed_only: !annotations.includeUnreviewed, remote_enabled: remote.enabled });
   });
 
   // Tafsir / i'rab / simple explanation for one ayah. Empty lists are a normal answer:
   // no content is invented when no licensed, reviewed source covers the ayah.
-  router.get("/ayat/:s/:a/annotations", (req, res) => {
+  router.get("/ayat/:s/:a/annotations", async (req, res) => {
     const surah = parse(surahParam, req.params.s, "s");
     const n = parse(positiveInt, req.params.a, "a");
     const { kind } = parse(z.object({ kind: z.enum(KINDS).optional() }).strict(), req.query);
     const total = pack.surahs[surah - 1].length;
     if (n > total) throw new ApiError(404, "NOT_FOUND", `Surah ${surah} has ${total} ayat.`);
+
+    // Local packs (AI drafts, imported packs) and on-demand tafsir books, merged and ordered by priority.
+    const fetched = await remote.forAyah(surah, n, kind);
+    const items = [...annotations.forAyah(surah, n, kind), ...fetched.items].sort((a, b) => (a.source.priority ?? 500) - (b.source.priority ?? 500) || a.id.localeCompare(b.id));
+    const kinds = KINDS.filter((k) => items.some((i) => i.kind === k));
+
+    if (fetched.warnings.length) {
+      // Partial answer: never let a CDN or browser keep it.
+      res.set("Cache-Control", "no-store");
+      res.removeHeader("ETag");
+    } else {
+      // The content depends on the upstream book text, so let Express tag the real body, and let the CDN keep it.
+      res.set("Cache-Control", "public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800");
+      res.removeHeader("ETag");
+    }
     res.json({
       source: sourceRef,
       ayah: ayah(surah, n),
-      available_kinds: annotations.availableKinds(surah, n),
-      annotations: annotations.forAyah(surah, n, kind),
+      available_kinds: kinds,
+      annotations: items,
+      ...(fetched.warnings.length ? { warnings: fetched.warnings } : {}),
     });
   });
 

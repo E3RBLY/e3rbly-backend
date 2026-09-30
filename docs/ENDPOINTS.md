@@ -54,3 +54,21 @@ Serves items from packs in `modules/quran/data/annotations`. Unreviewed AI draft
 |---|---|---|---|---|---|
 | 24 | GET | `/v1/quran/annotation-sources` | – | `{sources:[{id, kind, name_ar, attribution_text, license, provenance, coverage:{ayat}}], reviewed_only}` | PASS (local) |
 | 25 | GET | `/v1/quran/ayat/:s/:a/annotations?kind=tafsir\|i3rab\|simple` | s 1–114, a ≥1 | `{source, ayah, available_kinds[], annotations:[{id, kind, source{…}, label, body_ar, review_status}]}`; empty lists when nothing is licensed/reviewed; 400 bad kind/params, 404 ayah out of range | PASS (local) |
+
+### Tafsir books served on demand (same routes, 2026-09-30)
+
+`GET /v1/quran/ayat/:s/:a/annotations` now also returns six published tafsir books, fetched on demand from AlQuran Cloud (one upstream request per ayah for all needed books, cached in memory and by the CDN; nothing is mirrored into the repo). Source list and terms: `modules/quran/data/remote-sources.json`, `docs/licenses/alquran-cloud-terms.md`.
+
+| Source id | Kind | Book |
+|---|---|---|
+| `aqc-muyassar` | simple | التفسير الميسر (مجمع الملك فهد) |
+| `aqc-jalalayn` | tafsir | تفسير الجلالين |
+| `aqc-waseet` | tafsir | التفسير الوسيط |
+| `aqc-baghawi` | tafsir | تفسير البغوي |
+| `aqc-qurtubi` | tafsir | تفسير القرطبي |
+| `aqc-miqbas` | tafsir | تنوير المقباس (نسبته إلى ابن عباس محل خلاف) |
+
+- Items are merged with local packs and ordered by source `priority` (books first, AI drafts last, priority 900).
+- If the upstream service fails, the response is still `200` with the other items, plus `warnings: [{code, sources[]}]` and `Cache-Control: no-store`. Complete answers are `public, s-maxage=86400, stale-while-revalidate=604800`. ETag is derived from the real body.
+- `GET /v1/quran/annotation-sources` lists the books with `remote: true`, `coverage.ayat: 6236`, and `remote_enabled`.
+- Kill switches: `QURAN_REMOTE_TAFSIR=false` (all books) or `QURAN_DISABLED_SOURCES=aqc-qurtubi,...` (individual). Circuit breaker: 3 consecutive upstream failures pause upstream calls for 60 s.

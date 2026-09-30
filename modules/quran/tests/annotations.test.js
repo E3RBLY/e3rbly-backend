@@ -148,11 +148,15 @@ describe("GET /v1/quran/ayat/:s/:a/annotations", () => {
 
   test("ETag differs when annotation content differs, so caches never serve stale content", async () => {
     const staging = appFor(loadAnnotations({ dir, licensesDir, includeUnreviewed: true }));
-    const a = await request(app).get("/v1/quran/ayat/112/1/annotations");
-    const b = await request(staging).get("/v1/quran/ayat/112/1/annotations");
+    // The tag now describes the real response body: ayah 112:2 has an unreviewed item only staging serves.
+    const a = await request(app).get("/v1/quran/ayat/112/2/annotations");
+    const b = await request(staging).get("/v1/quran/ayat/112/2/annotations");
+    expect(a.body.annotations).toHaveLength(0);
+    expect(b.body.annotations).toHaveLength(1);
     expect(a.headers.etag).not.toBe(b.headers.etag);
-    const again = await request(app).get("/v1/quran/ayat/112/1/annotations").set("If-None-Match", a.headers.etag);
+    const again = await request(app).get("/v1/quran/ayat/112/2/annotations").set("If-None-Match", a.headers.etag);
     expect(again.status).toBe(304);
+    expect(a.headers["cache-control"]).toMatch(/s-maxage=86400/);
   });
 });
 
@@ -178,7 +182,7 @@ describe("GET /v1/quran/annotation-sources", () => {
 
       process.env.QURAN_INCLUDE_UNREVIEWED = "false";
       const off = await request(createApp({ pack, annotations: loadAnnotations(), maxPerMinute: 100000 })).get("/v1/quran/annotation-sources");
-      expect(off.body).toEqual({ sources: [], reviewed_only: true });
+      expect(off.body).toEqual({ sources: [], reviewed_only: true, remote_enabled: false });
     } finally {
       if (env === undefined) delete process.env.QURAN_INCLUDE_UNREVIEWED;
       else process.env.QURAN_INCLUDE_UNREVIEWED = env;

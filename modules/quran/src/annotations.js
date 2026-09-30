@@ -115,6 +115,7 @@ function loadAnnotations({ dir = DEFAULT_DIR, licensesDir = DEFAULT_LICENSES_DIR
       attribution_text: source.attribution_text,
       license: source.license,
       provenance: source.provenance,
+      priority: Number.isFinite(source.priority) ? source.priority : 500,
     };
     let served = 0;
     for (const file of fs.readdirSync(path.join(dir, entry.name))) {
