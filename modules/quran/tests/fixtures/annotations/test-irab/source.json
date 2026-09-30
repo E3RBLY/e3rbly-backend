@@ -1,0 +1,10 @@
+{
+  "id": "test-irab",
+  "kind": "i3rab",
+  "name_ar": "إعراب تجريبي (بيانات اختبار فقط)",
+  "edition": "طبعة تجريبية",
+  "attribution_text": "بيانات اختبار: ليست إعرابًا حقيقيًا",
+  "license": "test fixture",
+  "license_file": "test-permission.md",
+  "provenance": "imported"
+}
