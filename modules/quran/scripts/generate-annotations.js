@@ -90,6 +90,8 @@ async function main() {
         stored += 1;
         if (stored % 10 === 0 || stored <= 3) console.log(`  stored ${stored}  (${e.surah}:${e.ayah}, ${e.model})`);
       } else if (e.type === "retired") console.log(`  ${e.model}: daily quota reached, retired for this run. Left: ${pool.remaining().join(", ") || "none"}`);
+      else if (e.type === "cooling") console.log(`  ${e.model}: ${e.reason}; resting it for a few minutes, trying the next model`);
+      else if (e.type === "waiting") console.log(`  every remaining model is resting; waiting ${Math.round(e.ms / 1000)}s`);
       else if (e.type === "failed") console.log(`  ${e.surah}:${e.ayah} skipped (${e.reason})`);
     },
   });

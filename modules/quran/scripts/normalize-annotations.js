@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * Re-applies the text repairs (harakat removal, hamza restoration, ayah-word spelling) to AI-draft
- * packs already on disk. Idempotent: running it twice changes nothing more. Only touches the three
+ * packs already on disk, and tags items with the tier (lite/standard) of the model that wrote them. Idempotent: running it twice changes nothing more. Only touches the three
  * ai-* sources; imported or reviewed sources are never edited.
  *
  *   node modules/quran/scripts/normalize-annotations.js          apply
@@ -11,10 +11,12 @@ const fs = require("fs");
 const path = require("path");
 const { loadPack } = require("../src/pack");
 const { DEFAULT_DIR } = require("../src/annotations");
-const { stripHarakat, restoreHamza, DRAFT_SOURCES } = require("../src/annotationGenerator");
+const { stripHarakat, restoreHamza, tierOf, DRAFT_SOURCES } = require("../src/annotationGenerator");
 const { ayahWords } = require("../pilot/prompt");
 
 const check = process.argv.includes("--check");
+const logFile = path.join(DEFAULT_DIR, "generation-log.json");
+const genLog = fs.existsSync(logFile) ? JSON.parse(fs.readFileSync(logFile, "utf8")) : {};
 const pack = loadPack();
 let changed = 0;
 
@@ -33,6 +35,13 @@ for (const source of DRAFT_SOURCES) {
         if (item.review_status === "reviewed") continue; // a specialist approved these exact words
         const body = restoreHamza(stripHarakat(item.body_ar), text);
         const label = item.label ? restoreHamza(stripHarakat(item.label), text) : item.label;
+        const logged = genLog[ref] && genLog[ref][source.field];
+        const wantTier = logged && !item.model_tier ? tierOf(logged.model) : null; // tag items written before tiers existed
+        if (wantTier) {
+          item.model_tier = wantTier;
+          dirty = true;
+          changed += 1;
+        }
         if (body !== item.body_ar || label !== item.label) {
           item.body_ar = body;
           if (item.label) item.label = label;

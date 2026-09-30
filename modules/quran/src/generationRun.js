@@ -18,6 +18,7 @@ class ModelPool {
     this.strategy = strategy;
     this.exhausted = new Set();
     this.cursor = 0;
+    this.cooling = new Map(); // model -> time until which it is left alone (overloaded, timeouts)
     this.used = Object.fromEntries(unique.map((m) => [m, 0]));
   }
 
@@ -25,14 +26,19 @@ class ModelPool {
     return this.models.filter((m) => !this.exhausted.has(m));
   }
 
-  /** Next usable model, or null when every model has hit its daily quota. */
-  next() {
-    const live = this.remaining();
+  /** Next usable model that is not excluded or cooling down, or null. `remaining()` tells whether quota is what ran out. */
+  next({ exclude = new Set(), now = Date.now() } = {}) {
+    const live = this.remaining().filter((m) => !exclude.has(m) && (this.cooling.get(m) || 0) <= now);
     if (live.length === 0) return null;
     if (this.strategy === "priority") return live[0];
     const model = live[this.cursor % live.length];
     this.cursor += 1;
     return model;
+  }
+
+  /** Leave a misbehaving (overloaded) model alone for a while; it is not out of quota. */
+  cooldown(model, ms, now = Date.now()) {
+    this.cooling.set(model, now + ms);
   }
 
   exhaust(model) {
@@ -49,8 +55,14 @@ class ModelPool {
  * @param needs    (surah, ayah) => boolean: is anything still missing for this ayah?
  * @param generate async ({ model, surah, ayah, text }) => json   (throws errors with .quota / .invalid)
  * @param store    (surah, ayah, json, model) => void
+ *
+ * Failure handling, per ayah:
+ *  - daily quota  -> the model is retired for the run, the same ayah goes to the next model;
+ *  - anything else (503 overloaded, timeout, bad output) -> the model is left alone for cooldownMs and the
+ *    same ayah goes to the next model. Only when every live model has failed for this ayah is it skipped.
+ *  - if every live model failed or is resting, wait for the soonest to recover and try them all again (a few rounds).
  */
-async function runGeneration({ targets, needs, generate, store, pool, sleep = () => Promise.resolve(), intervalMs = 0, maxConsecutiveFailures = 6, maxStored = Infinity, onEvent = () => {} }) {
+async function runGeneration({ targets, needs, generate, store, pool, sleep = () => Promise.resolve(), now = () => Date.now(), intervalMs = 0, cooldownMs = 300000, maxWaitMs = 300000, maxWaitsPerAyah = 3, maxConsecutiveFailures = 6, maxStored = Infinity, onEvent = () => {} }) {
   const summary = { stored: 0, skippedExisting: 0, failed: 0, stopReason: "COMPLETED", byModel: pool.used, retired: [] };
   let streak = 0;
   let firstCall = true;
@@ -65,12 +77,36 @@ async function runGeneration({ targets, needs, generate, store, pool, sleep = ()
       break;
     }
 
+    const tried = new Set();
+    let waits = 0;
     let done = false;
     while (!done) {
-      const model = pool.next();
+      const model = pool.next({ exclude: tried, now: now() });
       if (!model) {
-        summary.stopReason = "ALL_MODELS_EXHAUSTED";
-        return summary;
+        if (pool.remaining().length === 0) {
+          summary.stopReason = "ALL_MODELS_EXHAUSTED";
+          return summary;
+        }
+        // Every live model either failed this ayah or is resting. Wait for the soonest to recover, then let
+        // all of them try again (a few rounds at most); otherwise give up on this ayah.
+        const delay = Math.min(...pool.remaining().map((m) => (pool.cooling.get(m) || 0) - now()));
+        if (delay > 0 && waits < maxWaitsPerAyah) {
+          waits += 1;
+          onEvent({ type: "waiting", ms: Math.min(delay, maxWaitMs) });
+          await sleep(Math.min(delay, maxWaitMs));
+          tried.clear();
+          continue;
+        }
+        // Every live model failed for this ayah (or stays unavailable): skip it and move on.
+        summary.failed += 1;
+        streak += 1;
+        done = true;
+        onEvent({ type: "failed", ...target, model: [...tried].join(","), reason: "every available model failed" });
+        if (streak >= maxConsecutiveFailures) {
+          summary.stopReason = "TOO_MANY_FAILURES";
+          return summary;
+        }
+        continue;
       }
       if (!firstCall && intervalMs > 0) await sleep(intervalMs);
       firstCall = false;
@@ -83,19 +119,14 @@ async function runGeneration({ targets, needs, generate, store, pool, sleep = ()
         done = true;
         onEvent({ type: "stored", ...target, model });
       } catch (err) {
+        tried.add(model);
         if (err.quota === "daily") {
           pool.exhaust(model);
           summary.retired.push(model);
           onEvent({ type: "retired", model });
-          continue; // same ayah, next model
-        }
-        summary.failed += 1;
-        streak += 1;
-        done = true;
-        onEvent({ type: "failed", ...target, model, reason: err.message });
-        if (streak >= maxConsecutiveFailures) {
-          summary.stopReason = "TOO_MANY_FAILURES";
-          return summary;
+        } else {
+          pool.cooldown(model, cooldownMs, now());
+          onEvent({ type: "cooling", model, reason: err.message });
         }
       }
     }

@@ -35,6 +35,7 @@ function buildIrabPrompt(surah, ayah, textAyah) {
     "Rules:",
     "- Analyse EVERY word of the ayah, in order. For each word give its part of speech and role, its case or mood (مرفوع/منصوب/مجرور/مجزوم/مبني) and the sign of that case (for example: وعلامة رفعه الضمة الظاهرة), and any pronoun attached to it. Then give the status of each sentence (لا محل لها / في محل ...) where relevant.",
     '- Give ONE item unless grammarians widely accept more than one wajh for a word or phrase; then give one item per wajh, each with a short "label" (for example "الوجه الأول: نعت"). With a single item leave "label" as "".',
+    '- IMPORTANT: the items in "i3rab" are ALTERNATIVE complete analyses of the whole ayah, never parts of one analysis. Never make one item per word. The normal answer is exactly one item whose "body" analyses all the words one after another (separate words with a full stop).',
     "- Write in Arabic, standard grammar terminology. No markdown, no headings, no Latin letters. Omit only the vowel marks (harakat/tashkeel); KEEP every hamza and madda exactly (أ إ ؤ ئ ء آ), for example: إعراب، مضاف إليه، على آخره، رأيت، الأفعال الخمسة. Quote words of the ayah inside « » with their normal spelling.",
     "- Never change or re-quote the ayah text. Do not cite books or scholars.",
   ].join("\n");
@@ -160,8 +161,8 @@ function storeGenerated(surah, ayah, json, { dir = DEFAULT_DIR, only, model, wor
     if ((items[ref] || []).length > 0) continue;
     items[ref] =
       s.field === "i3rab"
-        ? json.i3rab.map((w) => ({ ...(w.label && w.label.trim() ? { label: restoreHamza(stripHarakat(w.label), ayahText) } : {}), body_ar: restoreHamza(stripHarakat(w.body), ayahText), review_status: "unreviewed" }))
-        : [{ body_ar: restoreHamza(stripHarakat(json[s.field]), ayahText), review_status: "unreviewed" }];
+        ? json.i3rab.map((w) => ({ ...(w.label && w.label.trim() ? { label: restoreHamza(stripHarakat(w.label), ayahText) } : {}), body_ar: restoreHamza(stripHarakat(w.body), ayahText), review_status: "unreviewed", ...(model ? { model_tier: tierOf(model) } : {}) }))
+        : [{ body_ar: restoreHamza(stripHarakat(json[s.field]), ayahText), review_status: "unreviewed", ...(model ? { model_tier: tierOf(model) } : {}) }];
     const sorted = Object.fromEntries(Object.entries(items).sort(([a], [b]) => Number(a.split(":")[1]) - Number(b.split(":")[1])));
     fs.writeFileSync(file, `${JSON.stringify(sorted, null, 2)}\n`);
     written.push(s.field);
@@ -177,10 +178,13 @@ function storeGenerated(surah, ayah, json, { dir = DEFAULT_DIR, only, model, wor
   return written;
 }
 
+/** Lite models write faster and more, but with more slips; the app says so. */
+const tierOf = (model) => (/lite/i.test(model || "") ? "lite" : "standard");
+
 /** Is anything still missing for this ayah? With `only`, just that kind counts. */
 function needsGeneration(surah, ayah, { only, dir = DEFAULT_DIR } = {}) {
   const have = existingKinds(surah, ayah, dir);
   return only ? !have.includes(only) : have.length < DRAFT_SOURCES.length;
 }
 
-module.exports = { restoreHamza, stripHarakat, DRAFT_SOURCES, buildAyahPrompt, validateGenerated, ensureSources, existingKinds, needsGeneration, storeGenerated };
+module.exports = { tierOf, restoreHamza, stripHarakat, DRAFT_SOURCES, buildAyahPrompt, validateGenerated, ensureSources, existingKinds, needsGeneration, storeGenerated };

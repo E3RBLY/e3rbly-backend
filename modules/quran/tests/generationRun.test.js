@@ -71,14 +71,58 @@ describe("runGeneration", () => {
     expect(generate).toHaveBeenCalledTimes(2); // one attempt per model, not five
   });
 
-  test("other failures skip that ayah; too many in a row stop the run", async () => {
+  test("an overloaded model (503) is rested and the SAME ayah goes to the next model; nothing is skipped", async () => {
+    const ctx = base();
+    const generate = jest.fn(async ({ model }) => {
+      if (model === "m1") throw new Error("HTTP 503");
+      return {};
+    });
+    const s = await runGeneration({ ...ctx, targets: targets(4), generate });
+    expect(s).toMatchObject({ stored: 4, failed: 0, stopReason: "COMPLETED" });
+    expect(ctx.store.mock.calls.map((c) => c[3])).toEqual(["m2", "m2", "m2", "m2"]);
+    expect(generate.mock.calls.filter(([a]) => a.model === "m1")).toHaveLength(1); // rested after the first failure
+  });
+
+  test("a rested model is tried again once its cooldown is over", async () => {
+    let t = 0;
+    const ctx = base();
+    let m1Fails = true;
+    const generate = jest.fn(async ({ model }) => {
+      if (model === "m1" && m1Fails) throw new Error("HTTP 503");
+      return {};
+    });
+    const first = await runGeneration({ ...ctx, targets: targets(1), generate, now: () => t, cooldownMs: 1000 });
+    expect(first.stored).toBe(1);
+    m1Fails = false;
+    t = 5000;
+    await runGeneration({ ...ctx, targets: [{ surah: 112, ayah: 2, text: "x", wordCount: 2 }], generate, now: () => t, cooldownMs: 1000 });
+    expect(ctx.store.mock.calls[1][3]).toBe("m1");
+  });
+
+  test("when the only untried models are resting, it waits for the soonest one instead of skipping", async () => {
+    let t = 0;
+    const sleep = jest.fn(async (ms) => {
+      t += ms;
+    });
+    const pool = new ModelPool(["only"]);
+    let fails = 1;
+    const generate = jest.fn(async () => {
+      if (fails-- > 0) throw new Error("HTTP 503");
+      return {};
+    });
+    const store = jest.fn();
+    const s = await runGeneration({ needs: () => true, store, pool, targets: targets(1), generate, sleep, now: () => t, cooldownMs: 60000 });
+    expect(s).toMatchObject({ stored: 1, failed: 0 });
+    expect(sleep).toHaveBeenCalledWith(60000);
+  });
+
+  test("an ayah that every model fails is skipped; too many such skips in a row stop the run", async () => {
     const generate = jest.fn(async () => {
       throw new Error("HTTP 503");
     });
-    const s = await runGeneration({ ...base(), targets: targets(20), generate, maxConsecutiveFailures: 4 });
+    const s = await runGeneration({ ...base(), targets: targets(20), generate, maxConsecutiveFailures: 3, maxWaitsPerAyah: 0 });
     expect(s.stopReason).toBe("TOO_MANY_FAILURES");
-    expect(s.failed).toBe(4);
-    expect(generate).toHaveBeenCalledTimes(4);
+    expect(s.failed).toBe(3);
   });
 
   test("a success resets the failure streak", async () => {
@@ -88,9 +132,10 @@ describe("runGeneration", () => {
       if (n % 3 !== 0) throw new Error("boom");
       return {};
     });
-    const s = await runGeneration({ ...base(), targets: targets(9), generate, maxConsecutiveFailures: 3 });
+    const pool = new ModelPool(["only"]);
+    const s = await runGeneration({ needs: () => true, store: jest.fn(), pool, targets: targets(6), generate, maxConsecutiveFailures: 3, maxWaitsPerAyah: 0, cooldownMs: 0 });
     expect(s.stopReason).toBe("COMPLETED");
-    expect(s.stored).toBe(3);
+    expect(s.stored).toBe(2);
   });
 
   test("honours a per-run limit and paces calls", async () => {
@@ -190,5 +235,13 @@ describe("i'rab-only generation", () => {
     fs.writeFileSync(path.join(licenses, "ai-generated-drafts.md"), "x");
     const store = loadAnnotations({ dir, licensesDir: licenses, includeUnreviewed: true });
     expect(store.forAyah(112, 1)).toHaveLength(1);
+  });
+});
+
+describe("i'rab prompt clarity (lite models split per word without this)", () => {
+  test("says items are alternative complete analyses and never one per word", () => {
+    const p = buildAyahPrompt(101, 3, "وما أدراك ما القارعة", { only: "i3rab" });
+    expect(p).toMatch(/ALTERNATIVE complete analyses of the whole ayah/);
+    expect(p).toMatch(/Never make one item per word/);
   });
 });

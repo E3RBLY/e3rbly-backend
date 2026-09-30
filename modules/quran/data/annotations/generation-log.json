@@ -1,0 +1,1634 @@
+{
+ "87:1": {
+  "i3rab": {
+   "model": "gemini-3.5-flash-lite",
+   "at": "2026-09-30T02:42:15.592Z"
+  }
+ },
+ "87:2": {
+  "i3rab": {
+   "model": "gemini-3.5-flash-lite",
+   "at": "2026-09-30T02:42:20.800Z"
+  }
+ },
+ "87:3": {
+  "i3rab": {
+   "model": "gemini-3.5-flash-lite",
+   "at": "2026-09-30T02:42:25.906Z"
+  }
+ },
+ "87:4": {
+  "i3rab": {
+   "model": "gemini-3.5-flash-lite",
+   "at": "2026-09-30T02:42:30.829Z"
+  }
+ },
+ "87:5": {
+  "i3rab": {
+   "model": "gemini-3.5-flash-lite",
+   "at": "2026-09-30T02:42:35.974Z"
+  }
+ },
+ "87:6": {
+  "i3rab": {
+   "model": "gemini-3.5-flash-lite",
+   "at": "2026-09-30T02:42:52.444Z"
+  }
+ },
+ "87:7": {
+  "i3rab": {
+   "model": "gemini-3.5-flash-lite",
+   "at": "2026-09-30T02:42:57.875Z"
+  }
+ },
+ "87:8": {
+  "i3rab": {
+   "model": "gemini-3.5-flash-lite",
+   "at": "2026-09-30T02:43:02.892Z"
+  }
+ },
+ "87:9": {
+  "i3rab": {
+   "model": "gemini-3.5-flash-lite",
+   "at": "2026-09-30T02:43:08.112Z"
+  }
+ },
+ "87:10": {
+  "i3rab": {
+   "model": "gemini-3.5-flash-lite",
+   "at": "2026-09-30T02:43:13.546Z"
+  }
+ },
+ "87:11": {
+  "i3rab": {
+   "model": "gemini-3.5-flash-lite",
+   "at": "2026-09-30T02:43:18.433Z"
+  }
+ },
+ "87:12": {
+  "i3rab": {
+   "model": "gemini-3.5-flash-lite",
+   "at": "2026-09-30T02:43:23.497Z"
+  }
+ },
+ "87:13": {
+  "i3rab": {
+   "model": "gemini-3.5-flash-lite",
+   "at": "2026-09-30T02:43:40.945Z"
+  }
+ },
+ "87:14": {
+  "i3rab": {
+   "model": "gemini-3.5-flash-lite",
+   "at": "2026-09-30T02:43:45.823Z"
+  }
+ },
+ "87:15": {
+  "i3rab": {
+   "model": "gemini-3.1-flash-lite",
+   "at": "2026-09-30T02:44:20.025Z"
+  }
+ },
+ "87:16": {
+  "i3rab": {
+   "model": "gemini-3.1-flash-lite",
+   "at": "2026-09-30T02:44:25.267Z"
+  }
+ },
+ "87:17": {
+  "i3rab": {
+   "model": "gemini-3.1-flash-lite",
+   "at": "2026-09-30T02:44:30.248Z"
+  }
+ },
+ "87:18": {
+  "i3rab": {
+   "model": "gemini-3.1-flash-lite",
+   "at": "2026-09-30T02:44:35.615Z"
+  }
+ },
+ "88:1": {
+  "i3rab": {
+   "model": "gemini-flash-lite-latest",
+   "at": "2026-09-30T02:38:42.450Z"
+  }
+ },
+ "88:2": {
+  "i3rab": {
+   "model": "gemini-flash-lite-latest",
+   "at": "2026-09-30T02:38:47.628Z"
+  }
+ },
+ "88:3": {
+  "i3rab": {
+   "model": "gemini-flash-lite-latest",
+   "at": "2026-09-30T02:38:52.740Z"
+  }
+ },
+ "88:4": {
+  "i3rab": {
+   "model": "gemini-flash-lite-latest",
+   "at": "2026-09-30T02:38:57.718Z"
+  }
+ },
+ "88:5": {
+  "i3rab": {
+   "model": "gemini-flash-lite-latest",
+   "at": "2026-09-30T02:39:25.183Z"
+  }
+ },
+ "88:6": {
+  "i3rab": {
+   "model": "gemini-flash-lite-latest",
+   "at": "2026-09-30T02:39:30.333Z"
+  }
+ },
+ "88:7": {
+  "i3rab": {
+   "model": "gemini-flash-lite-latest",
+   "at": "2026-09-30T02:39:35.753Z"
+  }
+ },
+ "88:8": {
+  "i3rab": {
+   "model": "gemini-flash-lite-latest",
+   "at": "2026-09-30T02:39:40.944Z"
+  }
+ },
+ "88:9": {
+  "i3rab": {
+   "model": "gemini-flash-lite-latest",
+   "at": "2026-09-30T02:39:57.556Z"
+  }
+ },
+ "88:10": {
+  "i3rab": {
+   "model": "gemini-flash-lite-latest",
+   "at": "2026-09-30T02:40:02.509Z"
+  }
+ },
+ "88:11": {
+  "i3rab": {
+   "model": "gemini-flash-lite-latest",
+   "at": "2026-09-30T02:40:07.733Z"
+  }
+ },
+ "88:12": {
+  "i3rab": {
+   "model": "gemini-flash-lite-latest",
+   "at": "2026-09-30T02:40:12.757Z"
+  }
+ },
+ "88:13": {
+  "i3rab": {
+   "model": "gemini-flash-lite-latest",
+   "at": "2026-09-30T02:40:17.879Z"
+  }
+ },
+ "88:14": {
+  "i3rab": {
+   "model": "gemini-flash-lite-latest",
+   "at": "2026-09-30T02:40:22.628Z"
+  }
+ },
+ "88:15": {
+  "i3rab": {
+   "model": "gemini-flash-lite-latest",
+   "at": "2026-09-30T02:40:38.368Z"
+  }
+ },
+ "88:16": {
+  "i3rab": {
+   "model": "gemini-flash-lite-latest",
+   "at": "2026-09-30T02:40:43.513Z"
+  }
+ },
+ "88:17": {
+  "i3rab": {
+   "model": "gemini-flash-lite-latest",
+   "at": "2026-09-30T02:40:49.279Z"
+  }
+ },
+ "88:18": {
+  "i3rab": {
+   "model": "gemini-flash-lite-latest",
+   "at": "2026-09-30T02:41:05.998Z"
+  }
+ },
+ "88:19": {
+  "i3rab": {
+   "model": "gemini-3.5-flash-lite",
+   "at": "2026-09-30T02:41:22.874Z"
+  }
+ },
+ "88:20": {
+  "i3rab": {
+   "model": "gemini-3.5-flash-lite",
+   "at": "2026-09-30T02:41:28.091Z"
+  }
+ },
+ "88:21": {
+  "i3rab": {
+   "model": "gemini-3.5-flash-lite",
+   "at": "2026-09-30T02:41:33.217Z"
+  }
+ },
+ "88:22": {
+  "i3rab": {
+   "model": "gemini-3.5-flash-lite",
+   "at": "2026-09-30T02:41:38.324Z"
+  }
+ },
+ "88:23": {
+  "i3rab": {
+   "model": "gemini-3.5-flash-lite",
+   "at": "2026-09-30T02:41:54.876Z"
+  }
+ },
+ "88:24": {
+  "i3rab": {
+   "model": "gemini-3.5-flash-lite",
+   "at": "2026-09-30T02:41:59.980Z"
+  }
+ },
+ "88:25": {
+  "i3rab": {
+   "model": "gemini-3.5-flash-lite",
+   "at": "2026-09-30T02:42:05.168Z"
+  }
+ },
+ "88:26": {
+  "i3rab": {
+   "model": "gemini-3.5-flash-lite",
+   "at": "2026-09-30T02:42:10.391Z"
+  }
+ },
+ "89:1": {
+  "i3rab": {
+   "model": "gemini-flash-lite-latest",
+   "at": "2026-09-30T02:32:32.539Z"
+  }
+ },
+ "89:2": {
+  "i3rab": {
+   "model": "gemini-3.1-flash-lite-preview",
+   "at": "2026-09-30T02:33:05.380Z"
+  }
+ },
+ "89:3": {
+  "i3rab": {
+   "model": "gemini-3.1-flash-lite-preview",
+   "at": "2026-09-30T02:33:10.840Z"
+  }
+ },
+ "89:4": {
+  "i3rab": {
+   "model": "gemini-3.1-flash-lite-preview",
+   "at": "2026-09-30T02:33:16.141Z"
+  }
+ },
+ "89:5": {
+  "i3rab": {
+   "model": "gemini-3.1-flash-lite-preview",
+   "at": "2026-09-30T02:33:21.520Z"
+  }
+ },
+ "89:6": {
+  "i3rab": {
+   "model": "gemini-3.1-flash-lite-preview",
+   "at": "2026-09-30T02:33:28.376Z"
+  }
+ },
+ "89:7": {
+  "i3rab": {
+   "model": "gemini-3.5-flash-lite",
+   "at": "2026-09-30T02:34:03.449Z"
+  }
+ },
+ "89:8": {
+  "i3rab": {
+   "model": "gemini-3.5-flash-lite",
+   "at": "2026-09-30T02:34:08.830Z"
+  }
+ },
+ "89:9": {
+  "i3rab": {
+   "model": "gemini-3.5-flash-lite",
+   "at": "2026-09-30T02:34:14.436Z"
+  }
+ },
+ "89:10": {
+  "i3rab": {
+   "model": "gemini-3.5-flash-lite",
+   "at": "2026-09-30T02:34:19.477Z"
+  }
+ },
+ "89:11": {
+  "i3rab": {
+   "model": "gemini-3.5-flash-lite",
+   "at": "2026-09-30T02:34:36.262Z"
+  }
+ },
+ "89:12": {
+  "i3rab": {
+   "model": "gemini-3.5-flash-lite",
+   "at": "2026-09-30T02:34:42.044Z"
+  }
+ },
+ "89:13": {
+  "i3rab": {
+   "model": "gemini-3.5-flash-lite",
+   "at": "2026-09-30T02:34:47.528Z"
+  }
+ },
+ "89:14": {
+  "i3rab": {
+   "model": "gemini-3.5-flash-lite",
+   "at": "2026-09-30T02:34:52.861Z"
+  }
+ },
+ "89:15": {
+  "i3rab": {
+   "model": "gemini-3.5-flash-lite",
+   "at": "2026-09-30T02:35:11.829Z"
+  }
+ },
+ "89:16": {
+  "i3rab": {
+   "model": "gemini-3.5-flash-lite",
+   "at": "2026-09-30T02:35:18.080Z"
+  }
+ },
+ "89:17": {
+  "i3rab": {
+   "model": "gemini-3.5-flash-lite",
+   "at": "2026-09-30T02:35:23.254Z"
+  }
+ },
+ "89:18": {
+  "i3rab": {
+   "model": "gemini-3.5-flash-lite",
+   "at": "2026-09-30T02:35:28.539Z"
+  }
+ },
+ "89:19": {
+  "i3rab": {
+   "model": "gemini-3.5-flash-lite",
+   "at": "2026-09-30T02:35:33.690Z"
+  }
+ },
+ "89:20": {
+  "i3rab": {
+   "model": "gemini-3.1-flash-lite",
+   "at": "2026-09-30T02:36:06.970Z"
+  }
+ },
+ "89:21": {
+  "i3rab": {
+   "model": "gemini-3.1-flash-lite",
+   "at": "2026-09-30T02:36:12.681Z"
+  }
+ },
+ "89:22": {
+  "i3rab": {
+   "model": "gemini-3.1-flash-lite",
+   "at": "2026-09-30T02:36:17.789Z"
+  }
+ },
+ "89:23": {
+  "i3rab": {
+   "model": "gemini-3.1-flash-lite",
+   "at": "2026-09-30T02:36:23.617Z"
+  }
+ },
+ "89:24": {
+  "i3rab": {
+   "model": "gemini-flash-lite-latest",
+   "at": "2026-09-30T02:38:05.858Z"
+  }
+ },
+ "89:25": {
+  "i3rab": {
+   "model": "gemini-flash-lite-latest",
+   "at": "2026-09-30T02:38:11.880Z"
+  }
+ },
+ "89:26": {
+  "i3rab": {
+   "model": "gemini-flash-lite-latest",
+   "at": "2026-09-30T02:38:17.108Z"
+  }
+ },
+ "89:27": {
+  "i3rab": {
+   "model": "gemini-flash-lite-latest",
+   "at": "2026-09-30T02:38:22.101Z"
+  }
+ },
+ "89:28": {
+  "i3rab": {
+   "model": "gemini-flash-lite-latest",
+   "at": "2026-09-30T02:38:27.107Z"
+  }
+ },
+ "89:29": {
+  "i3rab": {
+   "model": "gemini-flash-lite-latest",
+   "at": "2026-09-30T02:38:32.264Z"
+  }
+ },
+ "89:30": {
+  "i3rab": {
+   "model": "gemini-flash-lite-latest",
+   "at": "2026-09-30T02:38:37.470Z"
+  }
+ },
+ "90:1": {
+  "i3rab": {
+   "model": "gemini-flash-lite-latest",
+   "at": "2026-09-30T02:30:13.388Z"
+  }
+ },
+ "90:2": {
+  "i3rab": {
+   "model": "gemini-flash-lite-latest",
+   "at": "2026-09-30T02:30:18.651Z"
+  }
+ },
+ "90:3": {
+  "i3rab": {
+   "model": "gemini-flash-lite-latest",
+   "at": "2026-09-30T02:30:35.176Z"
+  }
+ },
+ "90:4": {
+  "i3rab": {
+   "model": "gemini-flash-lite-latest",
+   "at": "2026-09-30T02:30:40.475Z"
+  }
+ },
+ "90:5": {
+  "i3rab": {
+   "model": "gemini-flash-lite-latest",
+   "at": "2026-09-30T02:30:45.827Z"
+  }
+ },
+ "90:6": {
+  "i3rab": {
+   "model": "gemini-flash-lite-latest",
+   "at": "2026-09-30T02:30:51.141Z"
+  }
+ },
+ "90:7": {
+  "i3rab": {
+   "model": "gemini-flash-lite-latest",
+   "at": "2026-09-30T02:30:57.257Z"
+  }
+ },
+ "90:8": {
+  "i3rab": {
+   "model": "gemini-flash-lite-latest",
+   "at": "2026-09-30T02:31:02.579Z"
+  }
+ },
+ "90:9": {
+  "i3rab": {
+   "model": "gemini-flash-lite-latest",
+   "at": "2026-09-30T02:31:07.728Z"
+  }
+ },
+ "90:10": {
+  "i3rab": {
+   "model": "gemini-flash-lite-latest",
+   "at": "2026-09-30T02:31:35.232Z"
+  }
+ },
+ "90:11": {
+  "i3rab": {
+   "model": "gemini-flash-lite-latest",
+   "at": "2026-09-30T02:31:40.414Z"
+  }
+ },
+ "90:12": {
+  "i3rab": {
+   "model": "gemini-flash-lite-latest",
+   "at": "2026-09-30T02:31:45.701Z"
+  }
+ },
+ "90:13": {
+  "i3rab": {
+   "model": "gemini-flash-lite-latest",
+   "at": "2026-09-30T02:31:50.721Z"
+  }
+ },
+ "90:14": {
+  "i3rab": {
+   "model": "gemini-flash-lite-latest",
+   "at": "2026-09-30T02:31:55.989Z"
+  }
+ },
+ "90:15": {
+  "i3rab": {
+   "model": "gemini-flash-lite-latest",
+   "at": "2026-09-30T02:32:01.212Z"
+  }
+ },
+ "90:16": {
+  "i3rab": {
+   "model": "gemini-flash-lite-latest",
+   "at": "2026-09-30T02:32:06.184Z"
+  }
+ },
+ "90:17": {
+  "i3rab": {
+   "model": "gemini-flash-lite-latest",
+   "at": "2026-09-30T02:32:12.001Z"
+  }
+ },
+ "90:18": {
+  "i3rab": {
+   "model": "gemini-flash-lite-latest",
+   "at": "2026-09-30T02:32:16.976Z"
+  }
+ },
+ "90:19": {
+  "i3rab": {
+   "model": "gemini-flash-lite-latest",
+   "at": "2026-09-30T02:32:22.425Z"
+  }
+ },
+ "90:20": {
+  "i3rab": {
+   "model": "gemini-flash-lite-latest",
+   "at": "2026-09-30T02:32:27.593Z"
+  }
+ },
+ "91:1": {
+  "i3rab": {
+   "model": "gemini-3.5-flash-lite",
+   "at": "2026-09-30T02:25:29.374Z"
+  }
+ },
+ "91:2": {
+  "i3rab": {
+   "model": "gemini-3.5-flash-lite",
+   "at": "2026-09-30T02:25:51.034Z"
+  }
+ },
+ "91:3": {
+  "i3rab": {
+   "model": "gemini-3.5-flash-lite",
+   "at": "2026-09-30T02:25:56.297Z"
+  }
+ },
+ "91:4": {
+  "i3rab": {
+   "model": "gemini-3.5-flash-lite",
+   "at": "2026-09-30T02:26:12.950Z"
+  }
+ },
+ "91:5": {
+  "i3rab": {
+   "model": "gemini-3.5-flash-lite",
+   "at": "2026-09-30T02:26:42.147Z"
+  }
+ },
+ "91:6": {
+  "i3rab": {
+   "model": "gemini-3.5-flash-lite",
+   "at": "2026-09-30T02:26:47.592Z"
+  }
+ },
+ "91:7": {
+  "i3rab": {
+   "model": "gemini-3.5-flash-lite",
+   "at": "2026-09-30T02:26:53.488Z"
+  }
+ },
+ "91:8": {
+  "i3rab": {
+   "model": "gemini-3.5-flash-lite",
+   "at": "2026-09-30T02:28:07.755Z"
+  }
+ },
+ "91:9": {
+  "i3rab": {
+   "model": "gemini-3.5-flash-lite",
+   "at": "2026-09-30T02:28:12.842Z"
+  }
+ },
+ "91:10": {
+  "i3rab": {
+   "model": "gemini-3.1-flash-lite",
+   "at": "2026-09-30T02:28:48.550Z"
+  }
+ },
+ "91:11": {
+  "i3rab": {
+   "model": "gemini-flash-lite-latest",
+   "at": "2026-09-30T02:29:23.067Z"
+  }
+ },
+ "91:12": {
+  "i3rab": {
+   "model": "gemini-flash-lite-latest",
+   "at": "2026-09-30T02:29:51.189Z"
+  }
+ },
+ "91:13": {
+  "i3rab": {
+   "model": "gemini-flash-lite-latest",
+   "at": "2026-09-30T02:29:56.735Z"
+  }
+ },
+ "91:14": {
+  "i3rab": {
+   "model": "gemini-flash-lite-latest",
+   "at": "2026-09-30T02:30:02.780Z"
+  }
+ },
+ "91:15": {
+  "i3rab": {
+   "model": "gemini-flash-lite-latest",
+   "at": "2026-09-30T02:30:08.086Z"
+  }
+ },
+ "92:1": {
+  "i3rab": {
+   "model": "gemini-3.5-flash-lite",
+   "at": "2026-09-30T02:21:03.434Z"
+  }
+ },
+ "92:2": {
+  "i3rab": {
+   "model": "gemini-3.5-flash-lite",
+   "at": "2026-09-30T02:21:08.816Z"
+  }
+ },
+ "92:3": {
+  "i3rab": {
+   "model": "gemini-3.5-flash-lite",
+   "at": "2026-09-30T02:21:25.245Z"
+  }
+ },
+ "92:4": {
+  "i3rab": {
+   "model": "gemini-3.5-flash-lite",
+   "at": "2026-09-30T02:21:30.376Z"
+  }
+ },
+ "92:5": {
+  "i3rab": {
+   "model": "gemini-3.5-flash-lite",
+   "at": "2026-09-30T02:21:46.620Z"
+  }
+ },
+ "92:6": {
+  "i3rab": {
+   "model": "gemini-3.5-flash-lite",
+   "at": "2026-09-30T02:21:51.643Z"
+  }
+ },
+ "92:7": {
+  "i3rab": {
+   "model": "gemini-3.5-flash-lite",
+   "at": "2026-09-30T02:21:56.698Z"
+  }
+ },
+ "92:8": {
+  "i3rab": {
+   "model": "gemini-3.5-flash-lite",
+   "at": "2026-09-30T02:22:13.099Z"
+  }
+ },
+ "92:9": {
+  "i3rab": {
+   "model": "gemini-3.5-flash-lite",
+   "at": "2026-09-30T02:22:18.096Z"
+  }
+ },
+ "92:10": {
+  "i3rab": {
+   "model": "gemini-3.5-flash-lite",
+   "at": "2026-09-30T02:22:23.360Z"
+  }
+ },
+ "92:11": {
+  "i3rab": {
+   "model": "gemini-3.5-flash-lite",
+   "at": "2026-09-30T02:22:28.761Z"
+  }
+ },
+ "92:12": {
+  "i3rab": {
+   "model": "gemini-3.5-flash-lite",
+   "at": "2026-09-30T02:22:33.932Z"
+  }
+ },
+ "92:13": {
+  "i3rab": {
+   "model": "gemini-3.5-flash-lite",
+   "at": "2026-09-30T02:23:01.601Z"
+  }
+ },
+ "92:14": {
+  "i3rab": {
+   "model": "gemini-3.5-flash-lite",
+   "at": "2026-09-30T02:23:06.809Z"
+  }
+ },
+ "92:15": {
+  "i3rab": {
+   "model": "gemini-3.5-flash-lite",
+   "at": "2026-09-30T02:23:12.937Z"
+  }
+ },
+ "92:16": {
+  "i3rab": {
+   "model": "gemini-3.5-flash-lite",
+   "at": "2026-09-30T02:23:57.034Z"
+  }
+ },
+ "92:17": {
+  "i3rab": {
+   "model": "gemini-3.5-flash-lite",
+   "at": "2026-09-30T02:24:07.441Z"
+  }
+ },
+ "92:18": {
+  "i3rab": {
+   "model": "gemini-3.5-flash-lite",
+   "at": "2026-09-30T02:24:12.805Z"
+  }
+ },
+ "92:19": {
+  "i3rab": {
+   "model": "gemini-3.5-flash-lite",
+   "at": "2026-09-30T02:24:37.120Z"
+  }
+ },
+ "92:20": {
+  "i3rab": {
+   "model": "gemini-3.5-flash-lite",
+   "at": "2026-09-30T02:25:07.589Z"
+  }
+ },
+ "92:21": {
+  "i3rab": {
+   "model": "gemini-3.5-flash-lite",
+   "at": "2026-09-30T02:25:12.715Z"
+  }
+ },
+ "93:1": {
+  "i3rab": {
+   "model": "gemini-flash-lite-latest",
+   "at": "2026-09-30T02:19:31.325Z"
+  }
+ },
+ "93:2": {
+  "i3rab": {
+   "model": "gemini-flash-lite-latest",
+   "at": "2026-09-30T02:19:36.704Z"
+  }
+ },
+ "93:3": {
+  "i3rab": {
+   "model": "gemini-flash-lite-latest",
+   "at": "2026-09-30T02:19:42.089Z"
+  }
+ },
+ "93:4": {
+  "i3rab": {
+   "model": "gemini-flash-lite-latest",
+   "at": "2026-09-30T02:19:47.523Z"
+  }
+ },
+ "93:5": {
+  "i3rab": {
+   "model": "gemini-flash-lite-latest",
+   "at": "2026-09-30T02:19:53.322Z"
+  }
+ },
+ "93:6": {
+  "i3rab": {
+   "model": "gemini-3.1-flash-lite-preview",
+   "at": "2026-09-30T02:20:28.007Z"
+  }
+ },
+ "93:7": {
+  "i3rab": {
+   "model": "gemini-3.1-flash-lite-preview",
+   "at": "2026-09-30T02:20:33.548Z"
+  }
+ },
+ "93:8": {
+  "i3rab": {
+   "model": "gemini-3.1-flash-lite-preview",
+   "at": "2026-09-30T02:20:39.562Z"
+  }
+ },
+ "93:9": {
+  "i3rab": {
+   "model": "gemini-3.1-flash-lite-preview",
+   "at": "2026-09-30T02:20:46.058Z"
+  }
+ },
+ "93:10": {
+  "i3rab": {
+   "model": "gemini-3.1-flash-lite-preview",
+   "at": "2026-09-30T02:20:52.394Z"
+  }
+ },
+ "93:11": {
+  "i3rab": {
+   "model": "gemini-3.1-flash-lite-preview",
+   "at": "2026-09-30T02:20:58.063Z"
+  }
+ },
+ "94:1": {
+  "i3rab": {
+   "model": "gemini-3.5-flash-lite",
+   "at": "2026-09-30T02:15:16.341Z"
+  }
+ },
+ "94:2": {
+  "i3rab": {
+   "model": "gemini-3.1-flash-lite",
+   "at": "2026-09-30T02:16:18.634Z"
+  }
+ },
+ "94:3": {
+  "i3rab": {
+   "model": "gemini-flash-lite-latest",
+   "at": "2026-09-30T02:18:59.638Z"
+  }
+ },
+ "94:4": {
+  "i3rab": {
+   "model": "gemini-flash-lite-latest",
+   "at": "2026-09-30T02:19:04.835Z"
+  }
+ },
+ "94:5": {
+  "i3rab": {
+   "model": "gemini-flash-lite-latest",
+   "at": "2026-09-30T02:19:10.099Z"
+  }
+ },
+ "94:6": {
+  "i3rab": {
+   "model": "gemini-flash-lite-latest",
+   "at": "2026-09-30T02:19:15.365Z"
+  }
+ },
+ "94:7": {
+  "i3rab": {
+   "model": "gemini-flash-lite-latest",
+   "at": "2026-09-30T02:19:20.649Z"
+  }
+ },
+ "94:8": {
+  "i3rab": {
+   "model": "gemini-flash-lite-latest",
+   "at": "2026-09-30T02:19:26.160Z"
+  }
+ },
+ "95:1": {
+  "i3rab": {
+   "model": "gemini-3.5-flash-lite",
+   "at": "2026-09-30T02:14:34.951Z"
+  }
+ },
+ "95:2": {
+  "i3rab": {
+   "model": "gemini-3.5-flash-lite",
+   "at": "2026-09-30T02:14:39.836Z"
+  }
+ },
+ "95:3": {
+  "i3rab": {
+   "model": "gemini-3.5-flash-lite",
+   "at": "2026-09-30T02:14:44.791Z"
+  }
+ },
+ "95:4": {
+  "i3rab": {
+   "model": "gemini-3.5-flash-lite",
+   "at": "2026-09-30T02:14:50.025Z"
+  }
+ },
+ "95:5": {
+  "i3rab": {
+   "model": "gemini-3.5-flash-lite",
+   "at": "2026-09-30T02:14:55.110Z"
+  }
+ },
+ "95:6": {
+  "i3rab": {
+   "model": "gemini-3.5-flash-lite",
+   "at": "2026-09-30T02:15:00.799Z"
+  }
+ },
+ "95:7": {
+  "i3rab": {
+   "model": "gemini-3.5-flash-lite",
+   "at": "2026-09-30T02:15:06.100Z"
+  }
+ },
+ "95:8": {
+  "i3rab": {
+   "model": "gemini-3.5-flash-lite",
+   "at": "2026-09-30T02:15:11.277Z"
+  }
+ },
+ "96:1": {
+  "i3rab": {
+   "model": "gemini-flash-lite-latest",
+   "at": "2026-09-30T02:11:18.049Z"
+  }
+ },
+ "96:2": {
+  "i3rab": {
+   "model": "gemini-flash-lite-latest",
+   "at": "2026-09-30T02:11:24.618Z"
+  }
+ },
+ "96:3": {
+  "i3rab": {
+   "model": "gemini-flash-lite-latest",
+   "at": "2026-09-30T02:11:29.862Z"
+  }
+ },
+ "96:4": {
+  "i3rab": {
+   "model": "gemini-flash-lite-latest",
+   "at": "2026-09-30T02:11:35.025Z"
+  }
+ },
+ "96:5": {
+  "i3rab": {
+   "model": "gemini-flash-lite-latest",
+   "at": "2026-09-30T02:11:40.123Z"
+  }
+ },
+ "96:6": {
+  "i3rab": {
+   "model": "gemini-flash-lite-latest",
+   "at": "2026-09-30T02:11:56.848Z"
+  }
+ },
+ "96:7": {
+  "i3rab": {
+   "model": "gemini-flash-lite-latest",
+   "at": "2026-09-30T02:12:02.006Z"
+  }
+ },
+ "96:8": {
+  "i3rab": {
+   "model": "gemini-flash-lite-latest",
+   "at": "2026-09-30T02:12:08.969Z"
+  }
+ },
+ "96:9": {
+  "i3rab": {
+   "model": "gemini-flash-lite-latest",
+   "at": "2026-09-30T02:12:25.754Z"
+  }
+ },
+ "96:10": {
+  "i3rab": {
+   "model": "gemini-flash-lite-latest",
+   "at": "2026-09-30T02:12:31.003Z"
+  }
+ },
+ "96:11": {
+  "i3rab": {
+   "model": "gemini-flash-lite-latest",
+   "at": "2026-09-30T02:12:36.566Z"
+  }
+ },
+ "96:12": {
+  "i3rab": {
+   "model": "gemini-flash-lite-latest",
+   "at": "2026-09-30T02:12:42.916Z"
+  }
+ },
+ "96:13": {
+  "i3rab": {
+   "model": "gemini-flash-lite-latest",
+   "at": "2026-09-30T02:12:59.917Z"
+  }
+ },
+ "96:14": {
+  "i3rab": {
+   "model": "gemini-flash-lite-latest",
+   "at": "2026-09-30T02:13:05.369Z"
+  }
+ },
+ "96:15": {
+  "i3rab": {
+   "model": "gemini-flash-lite-latest",
+   "at": "2026-09-30T02:13:10.869Z"
+  }
+ },
+ "96:16": {
+  "i3rab": {
+   "model": "gemini-flash-lite-latest",
+   "at": "2026-09-30T02:13:16.000Z"
+  }
+ },
+ "96:17": {
+  "i3rab": {
+   "model": "gemini-flash-lite-latest",
+   "at": "2026-09-30T02:13:21.253Z"
+  }
+ },
+ "96:18": {
+  "i3rab": {
+   "model": "gemini-flash-lite-latest",
+   "at": "2026-09-30T02:13:26.352Z"
+  }
+ },
+ "96:19": {
+  "i3rab": {
+   "model": "gemini-3.1-flash-lite-preview",
+   "at": "2026-09-30T02:14:00.135Z"
+  }
+ },
+ "97:1": {
+  "i3rab": {
+   "model": "gemini-3.1-flash-lite",
+   "at": "2026-09-30T02:10:10.329Z"
+  }
+ },
+ "97:2": {
+  "i3rab": {
+   "model": "gemini-3.1-flash-lite",
+   "at": "2026-09-30T02:10:17.103Z"
+  }
+ },
+ "97:3": {
+  "i3rab": {
+   "model": "gemini-3.1-flash-lite",
+   "at": "2026-09-30T02:10:24.457Z"
+  }
+ },
+ "97:4": {
+  "i3rab": {
+   "model": "gemini-3.1-flash-lite",
+   "at": "2026-09-30T02:10:31.660Z"
+  }
+ },
+ "97:5": {
+  "i3rab": {
+   "model": "gemini-3.1-flash-lite",
+   "at": "2026-09-30T02:10:38.726Z"
+  }
+ },
+ "98:1": {
+  "i3rab": {
+   "model": "gemini-3.5-flash-lite",
+   "at": "2026-09-30T02:08:29.351Z"
+  }
+ },
+ "98:2": {
+  "i3rab": {
+   "model": "gemini-3.5-flash-lite",
+   "at": "2026-09-30T02:08:46.292Z"
+  }
+ },
+ "98:3": {
+  "i3rab": {
+   "model": "gemini-3.5-flash-lite",
+   "at": "2026-09-30T02:08:51.181Z"
+  }
+ },
+ "98:4": {
+  "i3rab": {
+   "model": "gemini-3.5-flash-lite",
+   "at": "2026-09-30T02:08:57.272Z"
+  }
+ },
+ "98:5": {
+  "i3rab": {
+   "model": "gemini-3.1-flash-lite",
+   "at": "2026-09-30T02:09:36.939Z"
+  }
+ },
+ "98:6": {
+  "i3rab": {
+   "model": "gemini-3.1-flash-lite",
+   "at": "2026-09-30T02:09:45.284Z"
+  }
+ },
+ "98:7": {
+  "i3rab": {
+   "model": "gemini-3.1-flash-lite",
+   "at": "2026-09-30T02:09:53.433Z"
+  }
+ },
+ "98:8": {
+  "i3rab": {
+   "model": "gemini-3.1-flash-lite",
+   "at": "2026-09-30T02:10:02.558Z"
+  }
+ },
+ "99:1": {
+  "i3rab": {
+   "model": "gemini-3.5-flash-lite",
+   "at": "2026-09-30T02:07:16.742Z"
+  }
+ },
+ "99:2": {
+  "i3rab": {
+   "model": "gemini-3.5-flash-lite",
+   "at": "2026-09-30T02:07:21.821Z"
+  }
+ },
+ "99:3": {
+  "i3rab": {
+   "model": "gemini-3.5-flash-lite",
+   "at": "2026-09-30T02:07:27.783Z"
+  }
+ },
+ "99:4": {
+  "i3rab": {
+   "model": "gemini-3.5-flash-lite",
+   "at": "2026-09-30T02:07:33.117Z"
+  }
+ },
+ "99:5": {
+  "i3rab": {
+   "model": "gemini-3.5-flash-lite",
+   "at": "2026-09-30T02:07:49.835Z"
+  }
+ },
+ "99:6": {
+  "i3rab": {
+   "model": "gemini-3.5-flash-lite",
+   "at": "2026-09-30T02:07:55.293Z"
+  }
+ },
+ "99:7": {
+  "i3rab": {
+   "model": "gemini-3.5-flash-lite",
+   "at": "2026-09-30T02:08:00.532Z"
+  }
+ },
+ "99:8": {
+  "i3rab": {
+   "model": "gemini-3.5-flash-lite",
+   "at": "2026-09-30T02:08:17.567Z"
+  }
+ },
+ "100:1": {
+  "i3rab": {
+   "model": "gemini-3.5-flash-lite",
+   "at": "2026-09-30T02:05:18.871Z"
+  }
+ },
+ "100:2": {
+  "i3rab": {
+   "model": "gemini-3.5-flash-lite",
+   "at": "2026-09-30T02:05:34.016Z"
+  }
+ },
+ "100:3": {
+  "i3rab": {
+   "model": "gemini-3.5-flash-lite",
+   "at": "2026-09-30T02:05:47.662Z"
+  }
+ },
+ "100:4": {
+  "i3rab": {
+   "model": "gemini-3.5-flash-lite",
+   "at": "2026-09-30T02:05:57.550Z"
+  }
+ },
+ "100:5": {
+  "i3rab": {
+   "model": "gemini-3.5-flash-lite",
+   "at": "2026-09-30T02:06:03.711Z"
+  }
+ },
+ "100:6": {
+  "i3rab": {
+   "model": "gemini-3.5-flash-lite",
+   "at": "2026-09-30T02:06:08.975Z"
+  }
+ },
+ "100:7": {
+  "i3rab": {
+   "model": "gemini-3.5-flash-lite",
+   "at": "2026-09-30T02:06:37.023Z"
+  }
+ },
+ "100:8": {
+  "i3rab": {
+   "model": "gemini-3.5-flash-lite",
+   "at": "2026-09-30T02:06:42.278Z"
+  }
+ },
+ "100:9": {
+  "i3rab": {
+   "model": "gemini-3.5-flash-lite",
+   "at": "2026-09-30T02:06:47.810Z"
+  }
+ },
+ "100:10": {
+  "i3rab": {
+   "model": "gemini-3.5-flash-lite",
+   "at": "2026-09-30T02:07:04.379Z"
+  }
+ },
+ "100:11": {
+  "i3rab": {
+   "model": "gemini-3.5-flash-lite",
+   "at": "2026-09-30T02:07:10.203Z"
+  }
+ },
+ "101:1": {
+  "i3rab": {
+   "model": "gemini-flash-lite-latest",
+   "at": "2026-09-30T02:02:14.434Z"
+  }
+ },
+ "101:2": {
+  "i3rab": {
+   "model": "gemini-flash-lite-latest",
+   "at": "2026-09-30T02:02:20.551Z"
+  }
+ },
+ "101:3": {
+  "i3rab": {
+   "model": "gemini-flash-lite-latest",
+   "at": "2026-09-30T02:02:38.226Z"
+  }
+ },
+ "101:4": {
+  "i3rab": {
+   "model": "gemini-flash-lite-latest",
+   "at": "2026-09-30T02:03:11.640Z"
+  }
+ },
+ "101:5": {
+  "i3rab": {
+   "model": "gemini-flash-lite-latest",
+   "at": "2026-09-30T02:03:17.341Z"
+  }
+ },
+ "101:6": {
+  "i3rab": {
+   "model": "gemini-flash-lite-latest",
+   "at": "2026-09-30T02:03:34.649Z"
+  }
+ },
+ "101:7": {
+  "i3rab": {
+   "model": "gemini-flash-lite-latest",
+   "at": "2026-09-30T02:03:40.150Z"
+  }
+ },
+ "101:8": {
+  "i3rab": {
+   "model": "gemini-3.1-flash-lite-preview",
+   "at": "2026-09-30T02:04:15.344Z"
+  }
+ },
+ "101:9": {
+  "i3rab": {
+   "model": "gemini-3.1-flash-lite-preview",
+   "at": "2026-09-30T02:04:22.381Z"
+  }
+ },
+ "101:10": {
+  "i3rab": {
+   "model": "gemini-3.1-flash-lite-preview",
+   "at": "2026-09-30T02:04:28.065Z"
+  }
+ },
+ "101:11": {
+  "i3rab": {
+   "model": "gemini-3.5-flash-lite",
+   "at": "2026-09-30T02:05:12.829Z"
+  }
+ },
+ "102:1": {
+  "i3rab": {
+   "model": "gemini-flash-lite-latest",
+   "at": "2026-09-30T02:01:04.452Z"
+  }
+ },
+ "102:2": {
+  "i3rab": {
+   "model": "gemini-flash-lite-latest",
+   "at": "2026-09-30T02:01:09.892Z"
+  }
+ },
+ "102:3": {
+  "i3rab": {
+   "model": "gemini-flash-lite-latest",
+   "at": "2026-09-30T02:01:15.201Z"
+  }
+ },
+ "102:4": {
+  "i3rab": {
+   "model": "gemini-flash-lite-latest",
+   "at": "2026-09-30T02:01:21.078Z"
+  }
+ },
+ "102:5": {
+  "i3rab": {
+   "model": "gemini-flash-lite-latest",
+   "at": "2026-09-30T02:01:26.882Z"
+  }
+ },
+ "102:6": {
+  "i3rab": {
+   "model": "gemini-flash-lite-latest",
+   "at": "2026-09-30T02:01:32.592Z"
+  }
+ },
+ "102:7": {
+  "i3rab": {
+   "model": "gemini-flash-lite-latest",
+   "at": "2026-09-30T02:01:38.262Z"
+  }
+ },
+ "102:8": {
+  "i3rab": {
+   "model": "gemini-flash-lite-latest",
+   "at": "2026-09-30T02:02:09.273Z"
+  }
+ },
+ "103:1": {
+  "i3rab": {
+   "model": "gemini-3.5-flash-lite",
+   "at": "2026-09-30T01:59:20.814Z"
+  }
+ },
+ "103:2": {
+  "i3rab": {
+   "model": "gemini-3.5-flash-lite",
+   "at": "2026-09-30T01:59:37.479Z"
+  }
+ },
+ "103:3": {
+  "i3rab": {
+   "model": "gemini-3.1-flash-lite",
+   "at": "2026-09-30T02:00:14.709Z"
+  }
+ },
+ "104:1": {
+  "i3rab": {
+   "model": "gemini-3.5-flash-lite",
+   "at": "2026-09-30T01:58:13.156Z"
+  }
+ },
+ "104:2": {
+  "i3rab": {
+   "model": "gemini-3.5-flash-lite",
+   "at": "2026-09-30T01:58:18.936Z"
+  }
+ },
+ "104:3": {
+  "i3rab": {
+   "model": "gemini-3.5-flash-lite",
+   "at": "2026-09-30T01:58:24.642Z"
+  }
+ },
+ "104:4": {
+  "i3rab": {
+   "model": "gemini-3.5-flash-lite",
+   "at": "2026-09-30T01:58:46.741Z"
+  }
+ },
+ "104:5": {
+  "i3rab": {
+   "model": "gemini-3.5-flash-lite",
+   "at": "2026-09-30T01:58:55.207Z"
+  }
+ },
+ "104:6": {
+  "i3rab": {
+   "model": "gemini-3.5-flash-lite",
+   "at": "2026-09-30T01:59:00.317Z"
+  }
+ },
+ "104:7": {
+  "i3rab": {
+   "model": "gemini-3.5-flash-lite",
+   "at": "2026-09-30T01:59:05.584Z"
+  }
+ },
+ "104:8": {
+  "i3rab": {
+   "model": "gemini-3.5-flash-lite",
+   "at": "2026-09-30T01:59:10.672Z"
+  }
+ },
+ "104:9": {
+  "i3rab": {
+   "model": "gemini-3.5-flash-lite",
+   "at": "2026-09-30T01:59:15.852Z"
+  }
+ },
+ "105:1": {
+  "i3rab": {
+   "model": "gemini-3-flash-preview",
+   "at": "2026-09-30T01:56:45.297Z"
+  }
+ },
+ "105:2": {
+  "i3rab": {
+   "model": "gemini-3-flash-preview",
+   "at": "2026-09-30T01:57:23.348Z"
+  }
+ },
+ "105:3": {
+  "i3rab": {
+   "model": "gemini-3-flash-preview",
+   "at": "2026-09-30T01:57:33.675Z"
+  }
+ },
+ "105:4": {
+  "i3rab": {
+   "model": "gemini-3-flash-preview",
+   "at": "2026-09-30T01:57:46.472Z"
+  }
+ },
+ "105:5": {
+  "i3rab": {
+   "model": "gemini-3-flash-preview",
+   "at": "2026-09-30T01:57:59.246Z"
+  }
+ },
+ "106:1": {
+  "i3rab": {
+   "model": "gemini-3.5-flash",
+   "at": "2026-09-30T01:53:24.744Z"
+  }
+ },
+ "106:2": {
+  "i3rab": {
+   "model": "gemini-3.5-flash",
+   "at": "2026-09-30T01:53:57.540Z"
+  }
+ },
+ "106:3": {
+  "i3rab": {
+   "model": "gemini-3.5-flash",
+   "at": "2026-09-30T01:54:57.936Z"
+  }
+ },
+ "106:4": {
+  "i3rab": {
+   "model": "gemini-3-flash-preview",
+   "at": "2026-09-30T01:55:27.307Z"
+  }
+ },
+ "107:1": {
+  "i3rab": {
+   "model": "gemini-3-flash-preview",
+   "at": "2026-09-30T01:49:57.164Z"
+  }
+ },
+ "107:2": {
+  "i3rab": {
+   "model": "gemini-3-flash-preview",
+   "at": "2026-09-30T01:50:11.371Z"
+  }
+ },
+ "107:3": {
+  "i3rab": {
+   "model": "gemini-3-flash-preview",
+   "at": "2026-09-30T01:50:47.995Z"
+  }
+ },
+ "107:4": {
+  "i3rab": {
+   "model": "gemini-3-flash-preview",
+   "at": "2026-09-30T01:51:22.787Z"
+  }
+ },
+ "107:5": {
+  "i3rab": {
+   "model": "gemini-3-flash-preview",
+   "at": "2026-09-30T01:51:37.549Z"
+  }
+ },
+ "107:6": {
+  "i3rab": {
+   "model": "gemini-3.5-flash",
+   "at": "2026-09-30T01:52:03.701Z"
+  }
+ },
+ "107:7": {
+  "i3rab": {
+   "model": "gemini-3.5-flash",
+   "at": "2026-09-30T01:52:53.577Z"
+  }
+ },
+ "108:1": {
+  "i3rab": {
+   "model": "gemini-3-flash-preview",
+   "at": "2026-09-30T01:48:51.917Z"
+  }
+ },
+ "108:2": {
+  "i3rab": {
+   "model": "gemini-3-flash-preview",
+   "at": "2026-09-30T01:49:05.493Z"
+  }
+ },
+ "108:3": {
+  "i3rab": {
+   "model": "gemini-3-flash-preview",
+   "at": "2026-09-30T01:49:39.818Z"
+  }
+ },
+ "109:1": {
+  "i3rab": {
+   "model": "gemini-3.5-flash",
+   "at": "2026-09-30T01:43:56.901Z"
+  }
+ },
+ "109:2": {
+  "i3rab": {
+   "model": "gemini-3.5-flash",
+   "at": "2026-09-30T01:45:02.206Z"
+  }
+ },
+ "109:3": {
+  "i3rab": {
+   "model": "gemini-3-flash-preview",
+   "at": "2026-09-30T01:47:41.991Z"
+  }
+ },
+ "109:4": {
+  "i3rab": {
+   "model": "gemini-3-flash-preview",
+   "at": "2026-09-30T01:48:01.880Z"
+  }
+ },
+ "109:5": {
+  "i3rab": {
+   "model": "gemini-3-flash-preview",
+   "at": "2026-09-30T01:48:23.862Z"
+  }
+ },
+ "109:6": {
+  "i3rab": {
+   "model": "gemini-3-flash-preview",
+   "at": "2026-09-30T01:48:42.623Z"
+  }
+ },
+ "110:1": {
+  "i3rab": {
+   "model": "gemini-3.8-flash",
+   "at": "2026-09-30T01:29:25.528Z"
+  }
+ },
+ "110:2": {
+  "i3rab": {
+   "model": "gemini-3.8-flash",
+   "at": "2026-09-30T01:29:36.484Z"
+  }
+ },
+ "110:3": {
+  "i3rab": {
+   "model": "gemini-3.7-flash",
+   "at": "2026-09-30T01:35:02.809Z"
+  }
+ },
+ "111:3": {
+  "i3rab": {
+   "model": "gemini-3.8-flash",
+   "at": "2026-09-30T01:33:25.311Z"
+  }
+ },
+ "111:4": {
+  "i3rab": {
+   "model": "gemini-3.5-flash",
+   "at": "2026-09-30T01:43:27.825Z"
+  }
+ },
+ "111:5": {
+  "i3rab": {
+   "model": "gemini-3.8-flash",
+   "at": "2026-09-30T01:34:35.174Z"
+  }
+ },
+ "113:3": {
+  "i3rab": {
+   "model": "gemini-3.7-flash",
+   "at": "2026-09-30T01:42:19.740Z"
+  }
+ },
+ "113:5": {
+  "i3rab": {
+   "model": "gemini-3.8-flash",
+   "at": "2026-09-30T01:33:04.714Z"
+  }
+ }
+}

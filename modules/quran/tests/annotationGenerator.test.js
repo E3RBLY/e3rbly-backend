@@ -165,3 +165,31 @@ describe("restoreHamza (repairs the model's dropped hamza without touching anyth
     expect(stored).toContain("آخره");
   });
 });
+
+describe("model tier (lite models slip more, and the app says so)", () => {
+  const { tierOf } = require("../src/annotationGenerator");
+
+  test("tierOf", () => {
+    expect(tierOf("gemini-3.5-flash-lite")).toBe("lite");
+    expect(tierOf("gemini-flash-lite-latest")).toBe("lite");
+    expect(tierOf("gemini-3.8-flash")).toBe("standard");
+    expect(tierOf(undefined)).toBe("standard");
+  });
+
+  test("new items carry the tier, and the API serves it", () => {
+    const { dir, licenses } = tempDirs();
+    ensureSources({ dir });
+    storeGenerated(112, 1, good, { dir, only: "i3rab", model: "gemini-3.5-flash-lite" });
+    const stored = JSON.parse(fs.readFileSync(path.join(dir, "ai-irab", "surah-112.json"), "utf8"))["112:1"][0];
+    expect(stored.model_tier).toBe("lite");
+    const item = loadAnnotations({ dir, licensesDir: licenses, includeUnreviewed: true }).forAyah(112, 1)[0];
+    expect(item.model_tier).toBe("lite");
+  });
+
+  test("an unknown tier value is rejected by the pack validator", () => {
+    const { dir, licenses } = tempDirs();
+    ensureSources({ dir });
+    fs.writeFileSync(path.join(dir, "ai-irab", "surah-112.json"), JSON.stringify({ "112:1": [{ body_ar: "نص طويل بما يكفي للتحقق", review_status: "unreviewed", model_tier: "ultra" }] }));
+    expect(() => loadAnnotations({ dir, licensesDir: licenses, includeUnreviewed: true })).toThrow(/model_tier must be one of/);
+  });
+});

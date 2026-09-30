@@ -20,6 +20,7 @@ const { AYAH_COUNTS } = require("./pack");
 const KINDS = ["tafsir", "i3rab", "simple"];
 const PROVENANCE = ["imported", "curated", "ai_draft"];
 const REVIEW_STATUS = ["unreviewed", "reviewed", "disputed"];
+const MODEL_TIERS = ["standard", "lite"];
 
 const DEFAULT_DIR = path.join(__dirname, "..", "data", "annotations");
 const DEFAULT_LICENSES_DIR = path.join(__dirname, "..", "..", "..", "docs", "licenses");
@@ -68,6 +69,7 @@ function validateItems(sourceId, surah, items, source) {
     list.forEach((item, i) => {
       if (!isText(item && item.body_ar)) problems.push(`${where(ref)}[${i}]: body_ar is empty`);
       if (!REVIEW_STATUS.includes(item && item.review_status)) problems.push(`${where(ref)}[${i}]: review_status must be one of ${REVIEW_STATUS.join(", ")}`);
+      if (item && item.model_tier !== undefined && !MODEL_TIERS.includes(item.model_tier)) problems.push(`${where(ref)}[${i}]: model_tier must be one of ${MODEL_TIERS.join(", ")}`);
       if (list.length > 1 && !isText(item && item.label)) problems.push(`${where(ref)}[${i}]: several wujuh need a label`);
     });
   }
@@ -150,6 +152,7 @@ function loadAnnotations({ dir = DEFAULT_DIR, licensesDir = DEFAULT_LICENSES_DIR
             label: item.label || null,
             body_ar: item.body_ar,
             review_status: item.review_status,
+            model_tier: item.model_tier || null,
           });
           byAyah.set(ref, bucket);
         });
