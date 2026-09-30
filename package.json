@@ -13,7 +13,8 @@
     "format:check": "prettier --check .",
     "test": "jest",
     "test:watch": "jest --watch",
-    "validate:annotations": "node modules/quran/scripts/validate-annotations.js"
+    "validate:annotations": "node modules/quran/scripts/validate-annotations.js",
+    "validate:daily": "node modules/daily/scripts/validate-puzzles.js"
   },
   "keywords": [
     "arabic",
