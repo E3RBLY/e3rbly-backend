@@ -80,3 +80,27 @@ describe("loadPool: the shipped file", () => {
     expect(() => loadPool("/no/such/file.json")).toThrow(/^daily puzzles:/);
   });
 });
+
+describe("shipped pool: content quality", () => {
+  const pool = loadPool();
+  const targets = pool.puzzles.flatMap((p) => p.targets.map((t) => ({ id: p.id, ...t })));
+
+  test("a kana target never offers plain 'past verb' as a wrong option (it is also true of kana)", () => {
+    const kana = targets.filter((t) => t.explanation.includes("ناقص"));
+    expect(kana.length).toBeGreaterThanOrEqual(4);
+    for (const t of kana) expect(t.options).not.toContain("فعل ماض مبني على الفتح");
+  });
+
+  test("explanations never say kana is 'one of the sisters of kana'", () => {
+    for (const t of targets) expect(t.explanation).not.toMatch(/من أخوات كان/);
+  });
+
+  test("explanations about feminine (ة) words avoid masculine verb and pronoun templates", () => {
+    const bad = /جاء بعد|وقع عليه|أكمل معنى|فهو (?!فعل)|هو من قام/;
+    for (const t of targets.filter((x) => x.word.endsWith("ة"))) expect({ id: t.id, word: t.word, ok: !bad.test(t.explanation) }).toEqual({ id: t.id, word: t.word, ok: true });
+  });
+
+  test("a plural non-human subject is not described with a singular 'هو من قام'", () => {
+    for (const t of targets.filter((x) => x.word === "الطلاب")) expect(t.explanation).not.toMatch(/هو من قام/);
+  });
+});
