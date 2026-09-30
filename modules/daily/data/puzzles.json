@@ -1,0 +1,80 @@
+{
+  "epoch": "2026-10-01",
+  "review_status": "unreviewed",
+  "labels": {
+    "past_verb": "فعل ماض مبني على الفتح",
+    "present_verb": "فعل مضارع مرفوع وعلامة رفعه الضمة",
+    "subject": "فاعل مرفوع وعلامة رفعه الضمة",
+    "subject_plural": "فاعل مرفوع وعلامة رفعه الواو لأنه جمع مذكر سالم",
+    "object": "مفعول به منصوب وعلامة نصبه الفتحة",
+    "mubtada": "مبتدأ مرفوع وعلامة رفعه الضمة",
+    "khabar": "خبر مرفوع وعلامة رفعه الضمة",
+    "khabar_mudaf": "خبر مرفوع وعلامة رفعه الضمة وهو مضاف",
+    "majrur": "اسم مجرور وعلامة جره الكسرة",
+    "mudaf_ilayh": "مضاف إليه مجرور وعلامة جره الكسرة",
+    "adverb_time": "ظرف زمان منصوب وعلامة نصبه الفتحة",
+    "hal": "حال منصوب وعلامة نصبه الفتحة",
+    "naat": "نعت مرفوع وعلامة رفعه الضمة",
+    "inna": "حرف توكيد ونصب مبني على الفتح",
+    "inna_noun": "اسم إن منصوب وعلامة نصبه الفتحة",
+    "inna_khabar": "خبر إن مرفوع وعلامة رفعه الضمة",
+    "demonstrative": "اسم إشارة مبني في محل رفع مبتدأ",
+    "preposition": "حرف جر مبني على السكون"
+  },
+  "puzzles": [
+    {
+      "id": "d-001",
+      "sentence": "ذهب الولد إلى المدرسة",
+      "targets": [
+        { "word": "ذهب", "correct": "past_verb", "distractors": ["present_verb", "naat", "subject"], "explanation": "ذهب فعل يدل على حدث انتهى في الماضي، فهو فعل ماض مبني على الفتح." },
+        { "word": "الولد", "correct": "subject", "distractors": ["object", "mudaf_ilayh", "hal"], "explanation": "الولد هو من قام بالذهاب، فهو الفاعل ويأتي مرفوعا." },
+        { "word": "المدرسة", "correct": "majrur", "distractors": ["subject", "object", "mubtada"], "explanation": "المدرسة جاءت بعد حرف الجر إلى، وما بعد حرف الجر يكون مجرورا." }
+      ]
+    },
+    {
+      "id": "d-002",
+      "sentence": "قرأ الطالب الدرس",
+      "targets": [
+        { "word": "قرأ", "correct": "past_verb", "distractors": ["present_verb", "khabar", "naat"], "explanation": "قرأ فعل ماض مبني على الفتح." },
+        { "word": "الطالب", "correct": "subject", "distractors": ["object", "mubtada", "mudaf_ilayh"], "explanation": "الطالب هو من قام بالقراءة، فهو الفاعل المرفوع." },
+        { "word": "الدرس", "correct": "object", "distractors": ["subject", "mubtada", "mudaf_ilayh"], "explanation": "الدرس وقع عليه فعل القراءة، فهو مفعول به منصوب." }
+      ]
+    },
+    {
+      "id": "d-003",
+      "sentence": "الطقس جميل اليوم",
+      "targets": [
+        { "word": "الطقس", "correct": "mubtada", "distractors": ["subject", "object", "mudaf_ilayh"], "explanation": "الطقس اسم في أول الجملة الاسمية يُخبر عنه، فهو مبتدأ مرفوع." },
+        { "word": "جميل", "correct": "khabar", "distractors": ["object", "hal", "mudaf_ilayh"], "explanation": "جميل هو ما أكمل معنى المبتدأ، فهو خبر مرفوع." },
+        { "word": "اليوم", "correct": "adverb_time", "distractors": ["subject", "khabar", "mudaf_ilayh"], "explanation": "اليوم يدل على زمن وقوع الوصف، فهو ظرف زمان منصوب." }
+      ]
+    },
+    {
+      "id": "d-004",
+      "sentence": "إن العلم نور",
+      "targets": [
+        { "word": "إن", "correct": "inna", "distractors": ["preposition", "past_verb", "demonstrative"], "explanation": "إن حرف يفيد التوكيد وينصب المبتدأ اسما له ويرفع الخبر." },
+        { "word": "العلم", "correct": "inna_noun", "distractors": ["subject", "mubtada", "mudaf_ilayh"], "explanation": "العلم جاء بعد إن مباشرة، فهو اسمها وهو منصوب." },
+        { "word": "نور", "correct": "inna_khabar", "distractors": ["object", "mubtada", "hal"], "explanation": "نور أكمل معنى الجملة بعد اسم إن، فهو خبرها المرفوع." }
+      ]
+    },
+    {
+      "id": "d-005",
+      "sentence": "كتب المعلمون الدرس",
+      "targets": [
+        { "word": "كتب", "correct": "past_verb", "distractors": ["present_verb", "khabar", "naat"], "explanation": "كتب فعل ماض مبني على الفتح." },
+        { "word": "المعلمون", "correct": "subject_plural", "distractors": ["subject", "object", "mubtada"], "explanation": "المعلمون هم من قاموا بالكتابة، فهم فاعل مرفوع، وعلامة رفعه الواو لأنه جمع مذكر سالم." },
+        { "word": "الدرس", "correct": "object", "distractors": ["subject", "khabar", "mudaf_ilayh"], "explanation": "الدرس وقعت عليه الكتابة، فهو مفعول به منصوب." }
+      ]
+    },
+    {
+      "id": "d-006",
+      "sentence": "هذا كتاب المعلم",
+      "targets": [
+        { "word": "هذا", "correct": "demonstrative", "distractors": ["inna", "past_verb", "preposition"], "explanation": "هذا اسم إشارة مبني، ومحله الرفع لأنه مبتدأ." },
+        { "word": "كتاب", "correct": "khabar_mudaf", "distractors": ["subject", "object", "mudaf_ilayh"], "explanation": "كتاب أكمل معنى اسم الإشارة فهو خبر مرفوع، وجاء بعده اسم يضاف إليه فهو مضاف." },
+        { "word": "المعلم", "correct": "mudaf_ilayh", "distractors": ["khabar", "object", "hal"], "explanation": "المعلم جاء بعد اسم يضاف إليه (كتاب)، فهو مضاف إليه مجرور." }
+      ]
+    }
+  ]
+}
