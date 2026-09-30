@@ -841,7 +841,7 @@ Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>"
 - Produces:
   `sealed class DailyState`: `DailyLoading`, `DailyFailure(String message)`, `DailyReady({required DailyPuzzle puzzle, required List<int?> answers, required StreakState streak, required int shownStreak})`.
   `DailyReady` getters: `bool get completed` (all three answered), `List<bool> get results` (only meaningful when answered; unanswered = false), `int? get nextTarget` (first unanswered index or null), `String get shareText`, `int get treeStageIndex`.
-  `class DailyCubit extends Cubit<DailyState> { DailyCubit(DailyRepository, DailyStore, {StreakEngine engine = const StreakEngine(), DateTime Function()? now}); Future<void> load(); Future<void> answer(int target, int option); }`
+  `class DailyCubit extends Cubit<DailyState> { DailyCubit(DailyRepository, DailyStore, {StreakEngine engine = const StreakEngine()}); Future<void> load(); Future<void> answer(int target, int option); }`
   `answer` ignores: a non-Ready state, an already answered target, out-of-range indices. It persists the answers after every tap; when the third answer lands it applies `StreakEngine.complete(store.streak(), puzzle.date)`, saves the streak, and emits Ready with the new streak.
 
 - [ ] **Step 1: Write the failing tests**
