@@ -1,0 +1,9 @@
+{
+  "id": "ai-irab",
+  "kind": "i3rab",
+  "name_ar": "إعراب (مسودة بالذكاء الاصطناعي)",
+  "attribution_text": "مولَّد بالذكاء الاصطناعي ولم يُراجع بعد؛ قد تختلف كتب الإعراب في بعض الأوجه.",
+  "license": "In-house AI draft; no third-party text used (docs/licenses/ai-generated-drafts.md)",
+  "license_file": "ai-generated-drafts.md",
+  "provenance": "ai_draft"
+}

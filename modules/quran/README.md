@@ -15,3 +15,18 @@ Known upstream quirk: in Tanzil's text, the basmala at the start of surahs 95 an
 ## Pilot (AI draft experiment, not part of the API)
 
 `node modules/quran/pilot/run.js` is a dry run. `--run` needs `PILOT_API_KEY`, `PILOT_MODEL`, `PILOT_CAP_USD`, `PILOT_PRICE_IN_PER_M`, `PILOT_PRICE_OUT_PER_M` (see `.env.example`). It refuses to send a call whose worst case would pass the cap, uses one provider only, sends no third-party i'rab/tafsir text (ungrounded), rejects any draft that alters a word, and writes labelled `ai_draft` files to git-ignored `pilot-output/`. `--gold <file>` scores against a local gold file (keep it in git-ignored `gold/`; evaluation only). Results are a pilot, not a validated error rate.
+
+## AI-draft explanations (tafsir / simple / i'rab)
+
+Shipped drafts: Al-Fatiha and Al-Ikhlas. All are `ai_draft` + `unreviewed`; the app shows a warning on each. The server serves them only when `QURAN_INCLUDE_UNREVIEWED=true`.
+
+Generate more with a free Gemini key (see `.env.example`: `PILOT_API_KEY`, `PILOT_MODEL`, `PILOT_FREE_TIER=true`):
+
+```
+node modules/quran/scripts/generate-annotations.js --surah 108 --dry-run   # preview, no network
+node modules/quran/scripts/generate-annotations.js --surah 108
+node modules/quran/scripts/generate-annotations.js --surah 2 --from 1 --to 20
+npm run validate:annotations
+```
+
+At most `PILOT_MAX_CALLS` (default 60) requests per run, one every 6.5 s. It skips ayat already done and never overwrites text, so re-run on another day to continue. Commit the changed `data/annotations/*` files.
